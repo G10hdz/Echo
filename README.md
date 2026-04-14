@@ -312,11 +312,29 @@ Metis/src/echo/                   # Implementation lives here
 
 ## Roadmap
 
-- [ ] Phase 1: Telegram MVP ✅ **In Progress**
-- [ ] Phase 2: React Web App
+- [x] Phase 1: Telegram MVP ✅ **Complete**
+- [x] Phase 2: React Web App ✅ **Implementation Complete** (Ready for testing)
 - [ ] Phase 3: React Native Mobile Apps
 - [ ] Phase 4: WhisperX alignment + phoneme-level scoring
 - [ ] Phase 5: Spaced repetition + adaptive difficulty
+
+## Quick Start (Phase 2 - Web App)
+
+### Backend
+```bash
+cd backend
+pip install -r requirements.txt
+python main.py  # http://localhost:8000
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev  # http://localhost:5173
+```
+
+📖 **Full docs**: See `PHASE2_IMPLEMENTATION.md`
 
 ## License
 

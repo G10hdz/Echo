@@ -1,0 +1,205 @@
+/* Echo Design System - "The Sonic Landscape" */
+/* Tailwind v4: Using CSS variables directly */
+
+:root {
+  /* Primary Colors - Indigo */
+  --primary: #5755a9;
+  --primary-container: #bdbaff;
+  --primary-dim: #4b499c;
+  --primary-fixed: #bdbaff;
+  --primary-fixed-dim: #adabff;
+  --on-primary: #fbf7ff;
+  --on-primary-container: #343184;
+  --on-primary-fixed: #1e186e;
+  --on-primary-fixed-variant: #3d3a8d;
+
+  /* Secondary */
+  --secondary: #54643e;
+  --secondary-container: #e5f8c6;
+  --on-secondary: #efffd3;
+  --on-secondary-container: #4f5f3a;
+  --on-secondary-fixed: #3d4d29;
+  --on-secondary-fixed-variant: #596a43;
+  --secondary-fixed: #e5f8c6;
+  --secondary-fixed-dim: #d6e9b9;
+
+  /* Tertiary */
+  --tertiary: #4c6809;
+  --tertiary-container: #dafe92;
+  --on-tertiary: #f0ffcd;
+  --on-tertiary-container: #476303;
+  --on-tertiary-fixed: #384f00;
+  --on-tertiary-fixed-variant: #516d10;
+  --tertiary-fixed: #dafe92;
+  --tertiary-fixed-dim: #ccef85;
+
+  /* Surface Colors */
+  --background: #faf8ff;
+  --surface: #faf8ff;
+  --surface-bright: #faf8ff;
+  --surface-container: #ededf8;
+  --surface-container-high: #e6e7f4;
+  --surface-container-highest: #e0e2ef;
+  --surface-container-low: #f3f3fc;
+  --surface-container-lowest: #ffffff;
+  --surface-dim: #d7d9e8;
+  --surface-tint: #5755a9;
+  --surface-variant: #e0e2ef;
+
+  /* On Colors */
+  --on-background: #2f323c;
+  --on-surface: #2f323c;
+  --on-surface-variant: #5c5f6a;
+
+  /* Error */
+  --error: #ac3149;
+  --error-container: #f76a80;
+  --error-dim: #770326;
+  --on-error: #fff7f7;
+  --on-error-container: #68001f;
+
+  /* Outline */
+  --outline: #787a86;
+  --outline-variant: #afb1be;
+
+  /* Inverse */
+  --inverse-on-surface: #9c9ca4;
+  --inverse-primary: #a19ff9;
+  --inverse-surface: #0c0e13;
+
+  /* Score Colors */
+  --score-correct: #22c55e;
+  --score-partial: #f59e0b;
+  --score-incorrect: #ef4444;
+  --score-missed: #6b7280;
+
+  /* Spacing Scale (base: 0.25rem) */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+
+  /* Border Radius */
+  --radius-sm: 0.5rem;     /* 8px */
+  --radius-md: 1rem;       /* 16px */
+  --radius-lg: 1.5rem;     /* 24px */
+  --radius-xl: 2rem;       /* 32px */
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-headline: 'Manrope', sans-serif;
+  --font-body: 'Be Vietnam Pro', sans-serif;
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--background);
+  color: var(--on-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-headline);
+  color: var(--on-surface);
+}
+
+/* Utility Classes */
+@layer components {
+  /* Surface Containers (No-Line Rule) */
+  .surface-low {
+    background-color: var(--surface-container-low);
+  }
+  .surface-card {
+    background-color: var(--surface-container-lowest);
+  }
+  .surface-active {
+    background-color: var(--surface-container-high);
+  }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-container));
+    color: var(--on-primary);
+    border-radius: var(--radius-full);
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 8px 24px rgba(87, 85, 169, 0.2);
+    transform: translateY(-2px);
+  }
+  .btn-secondary {
+    background-color: var(--surface-container-highest);
+    color: var(--primary);
+    border-radius: var(--radius-full);
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover {
+    background-color: var(--surface-dim);
+  }
+
+  /* Input Fields */
+  .input-field {
+    background-color: var(--surface-container-low);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    border: none;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  .input-field:focus {
+    background-color: var(--surface-container-highest);
+    box-shadow: 0 0 0 2px var(--primary-fixed);
+    outline: none;
+  }
+
+  /* Cards */
+  .card {
+    background-color: var(--surface-container-lowest);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: 0 4px 16px rgba(87, 85, 169, 0.04);
+  }
+
+  /* Glassmorphism Overlay */
+  .glass {
+    background: rgba(250, 248, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Score Badges */
+  .badge-correct {
+    background-color: var(--score-correct);
+    color: white;
+  }
+  .badge-partial {
+    background-color: var(--score-partial);
+    color: white;
+  }
+  .badge-incorrect {
+    background-color: var(--score-incorrect);
+    color: white;
+  }
+  .badge-missed {
+    background-color: var(--score-missed);
+    color: white;
+  }
+}
