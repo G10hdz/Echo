@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(source *)",
+      "Bash(pip install *)"
+    ]
+  },
+  "$version": 3
+}
