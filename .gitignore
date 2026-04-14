@@ -1,1 +1,20 @@
 .qwen/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+*.egg
+.venv/
+venv/
+echo.db
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.tmp/
+
+# Build
+*.log
+.env
