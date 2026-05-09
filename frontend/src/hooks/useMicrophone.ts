@@ -41,11 +41,11 @@ export function useMicrophone(): UseMicrophoneReturn {
 
       analyser.getByteTimeDomainData(dataArray);
 
-      ctx.fillStyle = 'rgb(243, 243, 252)';
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--surface-container-low').trim() || '#f5f2eb';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.lineWidth = 2;
-      ctx.strokeStyle = 'rgb(87, 85, 169)';
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c45d3e';
       ctx.beginPath();
 
       const sliceWidth = canvas.width / bufferLength;

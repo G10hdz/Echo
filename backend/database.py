@@ -6,6 +6,8 @@ from datetime import datetime, date
 from typing import List, Dict, Optional
 from contextlib import contextmanager
 
+from models import PracticeSession
+
 
 DATABASE_PATH = Path("echo.db")
 
@@ -150,8 +152,8 @@ class DatabaseManager:
                 (user_id,)
             )
             conn.execute(
-                """UPDATE user_progress SET last_active = ? WHERE user_id = ?""",
-                (datetime.now(), user_id)
+                """UPDATE user_progress SET last_practice = ? WHERE user_id = ?""",
+                (date.today(), user_id)
             )
 
             return PracticeSession(

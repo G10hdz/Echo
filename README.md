@@ -336,6 +336,80 @@ npm run dev  # http://localhost:5173
 
 📖 **Full docs**: See `PHASE2_IMPLEMENTATION.md`
 
+## Cloud Run (backend only)
+
+The Docker image bundles **FastAPI + faster-whisper + Kokoro**. First cold start downloads Hugging Face weights and can take **several minutes**; set a generous **startup CPU boost** and **request timeout** (for example 300–900s) while testing.
+
+| Variable | Purpose |
+|----------|---------|
+| `ECHO_CORS_ORIGINS` | Comma-separated browser origins (required for Netlify / Vite build). Example: `https://your-app.netlify.app` |
+| `WHISPER_MODEL_SIZE` | `base` (default in image) or `small` / `medium` — larger models need more RAM |
+| `PORT` | Set automatically by Cloud Run (defaults to 8080 locally) |
+
+**SQLite** (`echo.db`) lives on the container filesystem and is **ephemeral** unless you attach a volume or move to Cloud SQL.
+
+### Deploy with Doppler + Google Cloud (recommended)
+
+Prerequisites: [Doppler CLI](https://docs.doppler.com/docs/install-cli), `gcloud` authenticated (`gcloud auth login` + `gcloud auth application-default login` as needed), and billing enabled on the GCP project.
+
+1. In Doppler (new project or existing, for example alongside `remote-positronica`), create secrets for the **Echo** deploy. Names must match exactly:
+
+| Secret | Required | Example |
+|--------|----------|---------|
+| `GCP_PROJECT_ID` | yes | `my-project-123` (or set **`GOOGLE_CLOUD_PROJECT`** instead — same value) |
+| `GCP_REGION` | yes | `us-central1` |
+| `AR_REPO` | yes | `echo` |
+| `IMAGE_NAME` | yes | `echo-api` |
+| `CLOUD_RUN_SERVICE` | yes | `echo-api` |
+| `ECHO_CORS_ORIGINS` | yes | `https://your-app.netlify.app` (comma-separated if several) |
+| `WHISPER_MODEL_SIZE` | no | `base` (default if unset) |
+| `CLOUD_RUN_MEMORY` | no | `8Gi` |
+| `CLOUD_RUN_CPU` | no | `4` |
+| `CLOUD_RUN_TIMEOUT` | no | `900` |
+
+2. Link the folder to that project (one-time):
+
+```bash
+cd Echo
+doppler setup
+```
+
+3. Deploy (uses **`gcloud builds submit`** — build runs on Google’s builders; no local Docker daemon required):
+
+```bash
+./scripts/cloud-run-deploy.sh
+# Uses the same Doppler **config** linked in this directory (see `doppler configure get config`).
+# To force another config: ./scripts/cloud-run-deploy.sh prd
+```
+
+If secrets exist in the dashboard but the script says they are missing, you usually set them in **config A** while the script was using **config B**. Either run `./scripts/cloud-run-deploy.sh <that-config>` or set secrets with explicit flags: `doppler secrets set KEY=value -p PROJECT -c CONFIG` ([Doppler docs](https://docs.doppler.com/docs/secrets-setup-guide)).
+
+The script prints the Cloud Run **service URL** at the end. For production, you can also use Doppler’s [Google Secret Manager integration](https://docs.doppler.com/docs/secret-manager) and mount secrets on the service instead of plain `set-env-vars`.
+
+### Frontend (Netlify or static host)
+
+Point the built UI at the API origin. Either set **`VITE_API_ORIGIN`** in the Netlify UI (same value as your Cloud Run URL, no trailing slash), or build locally with Doppler holding that value:
+
+```bash
+cd frontend
+doppler run --config prd -- npm run build
+# (define VITE_API_ORIGIN in the same Doppler config, or use a Netlify env var)
+```
+
+If you prefer a file: copy `frontend/.env.example` to `frontend/.env.production` (gitignored) and run `npm run build`.
+
+Deploy the `frontend/dist` folder to Netlify (publish directory `dist`). When the Netlify URL changes, update **`ECHO_CORS_ORIGINS`** in Doppler and run `./scripts/cloud-run-deploy.sh` again (or `gcloud run services update` with the new value).
+
+### Manual deploy (no Doppler)
+
+Same as above but export the variables yourself in the shell, then run:
+
+```bash
+gcloud config set project "$GCP_PROJECT_ID"
+gcloud builds submit --tag "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/${IMAGE_NAME}:latest" .
+gcloud run deploy "$CLOUD_RUN_SERVICE" --image "..." # same flags as in scripts/cloud-run-deploy-inner.sh
+```
+
 ## License
 
 MIT License

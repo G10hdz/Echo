@@ -1,0 +1,8 @@
+frontend
+.git
+**/__pycache__
+**/*.pyc
+**/.venv
+*.md
+.env
+echo.db

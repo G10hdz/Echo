@@ -13,8 +13,8 @@ except ImportError:
 class WhisperService:
     """Handles audio transcription using faster-whisper"""
 
-    def __init__(self, model_size: str = "medium", device: str = "auto"):
-        self.model_size = model_size
+    def __init__(self, model_size: str | None = None, device: str = "auto"):
+        self.model_size = model_size or os.environ.get("WHISPER_MODEL_SIZE", "medium")
         self.device = device
         self.model = None
         self._load_model()

@@ -18,6 +18,7 @@ class KokoroService:
 
     def __init__(self):
         self.pipeline = None
+        self.pipelines: dict = {}
         self._init_kokoro()
 
     def _init_kokoro(self):
@@ -52,9 +53,11 @@ class KokoroService:
         except ImportError as e:
             print(f"⚠️  Kokoro not available: {e}")
             self.pipeline = None
+            self.pipelines = {}
         except Exception as e:
             print(f"⚠️  Kokoro init error: {e}")
             self.pipeline = None
+            self.pipelines = {}
 
     async def generate(
         self,
