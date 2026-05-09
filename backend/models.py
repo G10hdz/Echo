@@ -13,15 +13,10 @@ class WordScore(BaseModel):
     said: Optional[str] = None
 
 
-class TranscribeRequest(BaseModel):
-    """Request for audio transcription"""
-    pass  # Audio comes as multipart file upload
-
-
 class TranscribeResponse(BaseModel):
     """Response from audio transcription"""
     text: str
-    words: List[dict] = []  # Word-level timestamps/confidence
+    words: List[dict] = []
     language: str = "en"
 
 
@@ -34,7 +29,7 @@ class ScoreRequest(BaseModel):
 class ScoreResponse(BaseModel):
     """Response from pronunciation scoring"""
     overall_score: int = Field(..., ge=0, le=100)
-    grade: str  # A, B, C, D, F
+    grade: str
     words: List[WordScore]
     flagged: List[WordScore] = []
 
@@ -86,3 +81,13 @@ class SentenceRecord(BaseModel):
     level: str
     topic: Optional[str] = None
     times_practiced: int = 0
+
+
+class AnalyzeResponse(BaseModel):
+    """Response from the merged /api/practice/analyze endpoint"""
+    session_id: int
+    transcription: str = ""
+    words: List[dict] = []
+    language: str = "en"
+    score: Optional[ScoreResponse] = None
+    tts_url: Optional[str] = None

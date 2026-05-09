@@ -1,5 +1,3 @@
-// Progress chart component using Recharts
-
 import {
   LineChart,
   Line,
@@ -9,7 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { TrendingUp, Award, Target, Clock } from 'lucide-react';
+import { TrendingUp, Award, Target, BookOpen } from 'lucide-react';
 
 interface ProgressChartProps {
   data: Array<{
@@ -37,25 +35,29 @@ export function ProgressChart({ data, stats }: ProgressChartProps) {
     suffix?: string;
   }) => (
     <div className="card">
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3">
         <div
-          className="p-3 rounded-lg"
+          className="p-2.5 rounded-lg"
           style={{
-            backgroundColor: 'var(--primary-fixed)',
+            backgroundColor: 'var(--accent-container)',
           }}
         >
-          <Icon size={24} style={{ color: 'var(--primary)' }} />
+          <Icon size={20} style={{ color: 'var(--accent)' }} aria-hidden="true" />
         </div>
         <div>
           <p
-            className="text-sm mb-1"
+            className="text-xs font-medium uppercase tracking-wide mb-0.5"
             style={{ color: 'var(--on-surface-variant)' }}
           >
             {label}
           </p>
           <p
             className="text-2xl font-bold"
-            style={{ fontFamily: 'var(--font-headline)' }}
+            style={{
+              fontFamily: 'var(--font-headline)',
+              color: 'var(--on-surface)',
+              lineHeight: 1.2,
+            }}
           >
             {value}
             {suffix}
@@ -68,87 +70,88 @@ export function ProgressChart({ data, stats }: ProgressChartProps) {
   return (
     <div>
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
           icon={TrendingUp}
           label="Average Score"
-          value={stats.avgScore}
+          value={Math.round(stats.avgScore)}
           suffix="%"
         />
         <StatCard
           icon={Award}
-          label="Total Sessions"
+          label="Sessions"
           value={stats.totalSessions}
         />
         <StatCard
           icon={Target}
-          label="Current Streak"
+          label="Day Streak"
           value={stats.streakDays}
-          suffix=" days"
         />
         <StatCard
-          icon={Clock}
-          label="Words Practiced"
+          icon={BookOpen}
+          label="Words"
           value={stats.wordsPracticed}
         />
       </div>
 
       {/* Score Progression Chart */}
-      <div className="card">
-        <h3
-          className="text-xl font-semibold mb-6"
-          style={{ fontFamily: 'var(--font-headline)' }}
-        >
-          30-Day Progress
-        </h3>
+      {data.length > 0 ? (
+        <div className="card">
+          <h3
+            className="text-xl font-semibold mb-6"
+            style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface)' }}
+          >
+            30-Day Progress
+          </h3>
 
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="var(--surface-container)"
-            />
-            <XAxis
-              dataKey="date"
-              stroke="var(--on-surface-variant)"
-              fontSize={12}
-            />
-            <YAxis
-              stroke="var(--on-surface-variant)"
-              fontSize={12}
-              domain={[0, 100]}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: 'var(--surface-container-lowest)',
-                border: 'none',
-                borderRadius: 'var(--radius-md)',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-              }}
-            />
-            <Line
-              type="monotone"
-              dataKey="score"
-              stroke="url(#gradient)"
-              strokeWidth={3}
-              dot={{ fill: 'var(--primary)', r: 4 }}
-              activeDot={{ r: 6 }}
-            />
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop
-                  offset="0%"
-                  stopColor="var(--primary)"
-                />
-                <stop
-                  offset="100%"
-                  stopColor="var(--primary-container)"
-                />
-              </linearGradient>
-            </defs>
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={data}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--outline-variant)"
+              />
+              <XAxis
+                dataKey="date"
+                stroke="var(--on-surface-variant)"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                stroke="var(--on-surface-variant)"
+                fontSize={12}
+                domain={[0, 100]}
+                tickLine={false}
+                axisLine={false}
+                width={40}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'var(--surface-container-lowest)',
+                  border: '1px solid var(--outline-variant)',
+                  borderRadius: 'var(--radius-md)',
+                  boxShadow: 'var(--shadow-md)',
+                  fontSize: '0.875rem',
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="score"
+                stroke="var(--accent)"
+                strokeWidth={2.5}
+                dot={{ fill: 'var(--accent)', r: 4, strokeWidth: 0 }}
+                activeDot={{ r: 6, fill: 'var(--accent)', strokeWidth: 2, stroke: 'var(--accent-container)' }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        <div className="card text-center py-12">
+          <p style={{ color: 'var(--on-surface-variant)' }}>
+            Practice at least 2 sessions to see your progress chart.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

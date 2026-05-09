@@ -18,3 +18,9 @@ frontend/.tmp/
 # Build
 *.log
 .env
+frontend/.env.production
+
+# Business/Strategy (confidential)
+*SaaS*
+*Monetization*
+*Business_Plan*

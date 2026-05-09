@@ -1,5 +1,3 @@
-// Microphone recording component with waveform visualizer
-
 import { Mic, StopCircle, RotateCcw, Play } from 'lucide-react';
 
 interface MicRecorderProps {
@@ -7,7 +5,7 @@ interface MicRecorderProps {
   duration: number;
   audioBlob: Blob | null;
   waveformRef: React.RefObject<HTMLCanvasElement | null>;
-  onStartRecording: () => void;
+  onStartRecording: () => Promise<void>;
   onStopRecording: () => void;
   onResetRecording: () => void;
   onPlayback: () => void;
@@ -30,8 +28,11 @@ export function MicRecorder({
   };
 
   return (
-    <div className="card">
-      <h3 className="text-xl font-semibold mb-6" style={{ fontFamily: 'var(--font-headline)' }}>
+    <div className="card" role="region" aria-label="Voice recorder">
+      <h3
+        className="text-xl font-semibold mb-6"
+        style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface)' }}
+      >
         Record Your Voice
       </h3>
 
@@ -40,10 +41,10 @@ export function MicRecorder({
         className="rounded-lg overflow-hidden mb-6"
         style={{
           backgroundColor: 'var(--surface-container-low)',
-          boxShadow: isRecording
-            ? '0 0 0 4px var(--primary-fixed), 0 8px 32px rgba(87, 85, 169, 0.12)'
-            : 'none',
-          transition: 'all 0.3s',
+          border: isRecording
+            ? '2px solid var(--accent)'
+            : '1px solid var(--outline-variant)',
+          transition: 'border-color var(--transition-fast)',
         }}
       >
         <canvas
@@ -52,17 +53,20 @@ export function MicRecorder({
           height={200}
           className="w-full"
           style={{ display: 'block' }}
+          aria-label={isRecording ? 'Audio waveform — recording in progress' : 'Audio waveform'}
+          role="img"
         />
       </div>
 
       {/* Recording Controls */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-3">
         {!isRecording && !audioBlob && (
           <button
             onClick={onStartRecording}
-            className="btn-primary flex items-center gap-2 text-lg"
+            className="btn-primary flex items-center gap-2 text-lg py-3 px-6"
+            aria-label="Start recording"
           >
-            <Mic size={24} />
+            <Mic size={22} aria-hidden="true" />
             Start Recording
           </button>
         )}
@@ -70,24 +74,29 @@ export function MicRecorder({
         {isRecording && (
           <>
             <div
-              className="px-4 py-2 rounded-full"
+              className="px-4 py-2 rounded-full flex items-center gap-2"
               style={{
                 backgroundColor: 'var(--error-container)',
                 color: 'var(--on-error-container)',
                 fontWeight: 600,
               }}
+              role="status"
+              aria-live="polite"
             >
-              <span className="inline-block w-2 h-2 rounded-full bg-red-600 animate-pulse mr-2" />
+              <span
+                className="inline-block w-2 h-2 rounded-full animate-pulse"
+                style={{ backgroundColor: 'var(--error)' }}
+                aria-hidden="true"
+              />
               Recording... {formatDuration(duration)}
             </div>
             <button
               onClick={onStopRecording}
               className="btn-primary flex items-center gap-2"
-              style={{
-                background: 'var(--error)',
-              }}
+              style={{ backgroundColor: 'var(--error)' }}
+              aria-label="Stop recording"
             >
-              <StopCircle size={20} />
+              <StopCircle size={20} aria-hidden="true" />
               Stop
             </button>
           </>
@@ -98,15 +107,17 @@ export function MicRecorder({
             <button
               onClick={onPlayback}
               className="btn-secondary flex items-center gap-2"
+              aria-label="Playback your recording"
             >
-              <Play size={20} />
+              <Play size={20} aria-hidden="true" />
               Playback
             </button>
             <button
               onClick={onResetRecording}
               className="btn-secondary flex items-center gap-2"
+              aria-label="Re-record your pronunciation"
             >
-              <RotateCcw size={20} />
+              <RotateCcw size={20} aria-hidden="true" />
               Re-record
             </button>
           </>
