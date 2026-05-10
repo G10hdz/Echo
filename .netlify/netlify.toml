@@ -1,0 +1,8 @@
+# Netlify configuration for Echo frontend
+
+[build]
+  publish = "frontend/dist"
+  command = "cd frontend && npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
