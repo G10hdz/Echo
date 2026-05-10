@@ -29,6 +29,8 @@ export function useMicrophone(): UseMicrophoneReturn {
     if (!analyserRef.current || !waveformCanvasRef.current) return;
 
     const canvas = waveformCanvasRef.current;
+    // Sync intrinsic size to CSS layout size so drawing coords match rendered pixels
+    canvas.width = canvas.offsetWidth || 800;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 

@@ -49,10 +49,9 @@ export function MicRecorder({
       >
         <canvas
           ref={waveformRef}
-          width={800}
           height={200}
           className="w-full"
-          style={{ display: 'block' }}
+          style={{ display: 'block', width: '100%' }}
           aria-label={isRecording ? 'Audio waveform — recording in progress' : 'Audio waveform'}
           role="img"
         />
