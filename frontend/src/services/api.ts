@@ -226,3 +226,42 @@ export async function getSentences(
 
   return response.json();
 }
+export interface AnalyzeResponse {
+  session_id: number;
+  transcription: string;
+  words: Array<{ word: string; start?: number; end?: number; confidence?: number }>;
+  language: string;
+  score: ScoreResponse | null;
+  tts_url: string | null;
+}
+
+export async function analyzePronunciation(
+  audioBlob: Blob,
+  expectedText: string,
+  userId = 'web-user-001',
+  language = 'en',
+  level = 'A1'
+): Promise<AnalyzeResponse> {
+  const formData = new FormData();
+  formData.append('audio', audioBlob, 'recording.webm');
+  formData.append('expected_text', expectedText);
+  formData.append('user_id', userId);
+  formData.append('language', language);
+  formData.append('level', level);
+
+  const response = await fetchWithRetry(`${API_BASE}/practice/analyze`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.text().catch(() => response.statusText);
+    throw new ApiError(
+      `Analysis failed: ${error || response.statusText}`,
+      response.status
+    );
+  }
+
+  return response.json();
+}
+

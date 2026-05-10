@@ -23,8 +23,10 @@ from database import DatabaseManager
 # ─── Optional AI services with graceful degradation ───
 WHISPER_AVAILABLE = False
 KOKORO_AVAILABLE = False
+ELEVENLABS_AVAILABLE = False
 whisper_service = None
 kokoro_service = None
+elevenlabs_service = None
 
 try:
     from whisper_service import WhisperService
@@ -35,11 +37,22 @@ except Exception as e:
     print(f"Whisper not available (non-blocking): {e}")
 
 try:
+    from elevenlabs_service import ElevenLabsService
+    elevenlabs_service = ElevenLabsService()
+    if elevenlabs_service.available:
+        ELEVENLABS_AVAILABLE = True
+        print("ElevenLabs TTS service loaded")
+    else:
+        print("ElevenLabs: set ELEVENLABS_API_KEY to enable")
+except Exception as e:
+    print(f"ElevenLabs not available (non-blocking): {e}")
+
+try:
     from kokoro_service import KokoroService
     kokoro_service = KokoroService()
     if kokoro_service.pipelines:
         KOKORO_AVAILABLE = True
-        print("Kokoro TTS service loaded")
+        print("Kokoro TTS service loaded (local fallback)")
     else:
         print("Kokoro imported but pipelines not available")
 except Exception as e:
@@ -85,10 +98,11 @@ def convert_audio_to_wav(input_path: str) -> str:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Echo backend starting...")
-    print(f"  Whisper STT: {'available' if WHISPER_AVAILABLE else 'unavailable'}")
-    print(f"  Kokoro TTS:  {'available' if KOKORO_AVAILABLE else 'unavailable'}")
-    print(f"  Scorer:      always available")
-    print(f"  Database:    always available")
+    print(f"  Whisper STT:    {'available' if WHISPER_AVAILABLE else 'unavailable'}")
+    print(f"  ElevenLabs TTS: {'available' if ELEVENLABS_AVAILABLE else 'unavailable'}")
+    print(f"  Kokoro TTS:     {'available (fallback)' if KOKORO_AVAILABLE else 'unavailable'}")
+    print(f"  Scorer:         always available")
+    print(f"  Database:       always available")
     yield
     print("Echo backend shutting down...")
 
@@ -124,7 +138,8 @@ async def health_check():
         "version": "0.2.0",
         "services": {
             "whisper": WHISPER_AVAILABLE,
-            "kokoro": KOKORO_AVAILABLE,
+            "elevenlabs_tts": ELEVENLABS_AVAILABLE,
+            "kokoro_tts": KOKORO_AVAILABLE,
             "scorer": True,
             "database": True
         }
@@ -182,25 +197,33 @@ async def score_pronunciation(request: ScoreRequest):
 # ─── TTS ───
 @app.post("/api/tts", response_model=TTSResponse)
 async def generate_tts(request: TTSRequest):
-    """Generate correct pronunciation audio using Kokoro TTS."""
-    if not KOKORO_AVAILABLE:
+    """Generate correct pronunciation audio. Uses ElevenLabs if available, falls back to Kokoro."""
+    if not ELEVENLABS_AVAILABLE and not KOKORO_AVAILABLE:
         raise HTTPException(
             status_code=503,
-            detail="Kokoro TTS is not available. Install kokoro, phonemizer, and espeakng-loader."
+            detail="No TTS service available. Set ELEVENLABS_API_KEY or install Kokoro."
         )
 
     try:
         text_hash = str(abs(hash(request.text)))
+        lang = request.language or "en"
         audio_filename = f"tts_{text_hash}.wav"
         audio_path = AUDIO_DIR / audio_filename
 
         if not audio_path.exists():
-            await kokoro_service.generate(
-                text=request.text,
-                output_path=str(audio_path),
-                voice=request.voice or "af_heart",
-                language=request.language or "en"
-            )
+            if ELEVENLABS_AVAILABLE:
+                await elevenlabs_service.generate(
+                    text=request.text,
+                    output_path=str(audio_path),
+                    language=lang,
+                )
+            else:
+                await kokoro_service.generate(
+                    text=request.text,
+                    output_path=str(audio_path),
+                    voice=request.voice or "af_heart",
+                    language=lang,
+                )
 
         return TTSResponse(audio_url=f"/audio/{audio_filename}", text=request.text)
     except Exception as e:
@@ -324,20 +347,27 @@ async def analyze_pronunciation(
         else:
             score_result = None
 
-        # 4. TTS
+        # 4. TTS — ElevenLabs preferred, Kokoro fallback
         audio_filename = None
-        if KOKORO_AVAILABLE and kokoro_service:
+        if ELEVENLABS_AVAILABLE or KOKORO_AVAILABLE:
             try:
                 text_hash = str(abs(hash(expected_text)))
                 audio_filename = f"tts_{text_hash}.wav"
                 audio_path = AUDIO_DIR / audio_filename
                 if not audio_path.exists():
-                    await kokoro_service.generate(
-                        text=expected_text,
-                        output_path=str(audio_path),
-                        voice="af_heart" if language == "en" else "ef_dora",
-                        language=language
-                    )
+                    if ELEVENLABS_AVAILABLE:
+                        await elevenlabs_service.generate(
+                            text=expected_text,
+                            output_path=str(audio_path),
+                            language=language,
+                        )
+                    else:
+                        await kokoro_service.generate(
+                            text=expected_text,
+                            output_path=str(audio_path),
+                            voice="af_heart" if language == "en" else "ef_dora",
+                            language=language,
+                        )
                 tts_url = f"/audio/{audio_filename}"
             except Exception as tts_err:
                 print(f"TTS generation failed (non-blocking): {tts_err}")

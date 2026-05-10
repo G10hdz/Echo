@@ -12,7 +12,6 @@ export function PracticePage() {
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [score, setScore] = useState<ScoreResponse | null>(null);
-  const [sessionId, setSessionId] = useState<number | null>(null);
   const [ttsUrl, setTtsUrl] = useState<string | null>(null);
   const [playingTTS, setPlayingTTS] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,16 +38,7 @@ export function PracticePage() {
     try {
       const response = await api.getSentences(level, language, 1);
       if (response.sentences.length > 0) {
-        const sentence = response.sentences[0];
-        setCurrentSentence(sentence);
-
-        const session = await api.startPracticeSession(
-          userId,
-          sentence.text,
-          language,
-          level
-        );
-        setSessionId(session.session_id);
+        setCurrentSentence(response.sentences[0]);
       }
     } catch (err) {
       setError('Failed to load a practice sentence. Please check your connection and try again.');
@@ -62,32 +52,20 @@ export function PracticePage() {
   }, [loadSentence]);
 
   const handleProcessRecording = async () => {
-    if (!audioBlob || !currentSentence || !sessionId) return;
+    if (!audioBlob || !currentSentence) return;
 
     setProcessing(true);
     setError(null);
     try {
-      const transcription = await api.transcribeAudio(audioBlob);
-      const scoreResult = await api.scorePronunciation({
-        expected: currentSentence.text,
-        actual: transcription.text,
-      });
-      setScore(scoreResult);
-
-      const tts = await api.generateTTS({
-        text: currentSentence.text,
+      const result = await api.analyzePronunciation(
+        audioBlob,
+        currentSentence.text,
+        userId,
         language,
-      });
-      setTtsUrl(api.mediaUrl(tts.audio_url));
-
-      const flaggedWords = scoreResult.flagged.map((w) => w.word).join(', ');
-      await api.completePracticeSession(
-        sessionId,
-        scoreResult.overall_score,
-        scoreResult.grade,
-        transcription.text,
-        flaggedWords
+        level
       );
+      if (result.score) setScore(result.score);
+      if (result.tts_url) setTtsUrl(api.mediaUrl(result.tts_url));
     } catch (err) {
       setError(
         err instanceof Error
