@@ -24,3 +24,8 @@ frontend/.env.production
 *SaaS*
 *Monetization*
 *Business_Plan*
+
+# Planning docs (internal notes)
+docs/PLANNING.md
+.netlify/
+frontend/.netlify/

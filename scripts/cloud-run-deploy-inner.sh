@@ -33,10 +33,9 @@ IMAGE="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/${IMAGE_NAME}:l
 
 gcloud config set project "${GCP_PROJECT_ID}"
 
-gcloud artifacts repositories describe "${AR_REPO}" --location="${GCP_REGION}" >/dev/null 2>&1 \
-  || gcloud artifacts repositories create "${AR_REPO}" \
+gcloud artifacts repositories create "${AR_REPO}" \
     --repository-format=docker \
-    --location="${GCP_REGION}"
+    --location="${GCP_REGION}" 2>&1 | grep -v "ALREADY_EXISTS" || true
 
 gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
 
@@ -50,7 +49,7 @@ gcloud run deploy "${CLOUD_RUN_SERVICE}" \
   --memory "${CLOUD_RUN_MEMORY:-8Gi}" \
   --cpu "${CLOUD_RUN_CPU:-4}" \
   --timeout "${CLOUD_RUN_TIMEOUT:-900}" \
-  --set-env-vars "ECHO_CORS_ORIGINS=${ECHO_CORS_ORIGINS},WHISPER_MODEL_SIZE=${WHISPER_MODEL_SIZE}"
+  --set-env-vars "ECHO_CORS_ORIGINS=${ECHO_CORS_ORIGINS},WHISPER_MODEL_SIZE=${WHISPER_MODEL_SIZE},ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY:-}"
 
 echo "Done. Service URL:"
 gcloud run services describe "${CLOUD_RUN_SERVICE}" --region "${GCP_REGION}" --format='value(status.url)'
