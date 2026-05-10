@@ -8,8 +8,9 @@ import type {
   TTSResponse,
   ProgressResponse,
   SentenceRecord,
-  AppSettings,
 } from '../types';
+import type { AppSettings } from '../types';
+import { isValidLanguage, isValidLevel, DEFAULT_SETTINGS } from '../types';
 
 const API_ORIGIN = (import.meta.env.VITE_API_ORIGIN || '').replace(/\/$/, '');
 export const API_BASE = `${API_ORIGIN}/api`;

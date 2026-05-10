@@ -9,8 +9,14 @@ import {
   Sun,
   Volume2,
 } from 'lucide-react';
-import { loadSettings, saveSettings, AppSettings, DEFAULT_SETTINGS, LANGUAGE_LABELS } from '../types';
-import * as api from '../services/api';
+import { loadSettings, saveSettings } from '../services/api';
+import {
+  AppSettings,
+  DEFAULT_SETTINGS,
+  LANGUAGE_LABELS,
+  SUPPORTED_LANGUAGES,
+  LanguageCode,
+} from '../types';
 
 const VOICE_OPTIONS = [
   { id: 'alloy', label: 'Alloy (Neutral)' },
@@ -197,7 +203,7 @@ export function SettingsPage() {
           >
             <SettingsSelect
               value={settings.language}
-              onChange={(val) => updateSetting('language', val as AppSettings['language'])}
+              onChange={(val) => updateSetting('language', val as LanguageCode)}
               options={SUPPORTED_LANGUAGES.map((lang) => ({
                 value: lang,
                 label: LANGUAGE_LABELS[lang],
