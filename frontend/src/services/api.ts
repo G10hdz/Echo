@@ -8,8 +8,8 @@ import type {
   TTSResponse,
   ProgressResponse,
   SentenceRecord,
+  AppSettings,
 } from '../types';
-import type { AppSettings } from '../types';
 import { isValidLanguage, isValidLevel, DEFAULT_SETTINGS } from '../types';
 
 const API_ORIGIN = (import.meta.env.VITE_API_ORIGIN || '').replace(/\/$/, '');
@@ -279,7 +279,6 @@ export function loadSettings(): AppSettings {
         language: isValidLanguage(parsed.language) ? parsed.language : 'en',
         level: isValidLevel(parsed.level) ? parsed.level : 'A1',
         voiceId: parsed.voiceId || '',
-        darkMode: parsed.darkMode || false,
       };
     }
   } catch {

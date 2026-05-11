@@ -91,14 +91,12 @@ export interface AppSettings {
   language: LanguageCode;
   level: LevelCode;
   voiceId: string;
-  darkMode: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
   language: 'en',
   level: 'A1',
   voiceId: '',
-  darkMode: false,
 };
 
 export const LANGUAGE_LABELS: Record<LanguageCode, string> = {

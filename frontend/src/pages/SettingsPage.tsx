@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Languages,
   BookOpen,
@@ -10,13 +10,8 @@ import {
   Volume2,
 } from 'lucide-react';
 import { loadSettings, saveSettings } from '../services/api';
-import {
-  AppSettings,
-  DEFAULT_SETTINGS,
-  LANGUAGE_LABELS,
-  SUPPORTED_LANGUAGES,
-  LanguageCode,
-} from '../types';
+import { AppSettings, DEFAULT_SETTINGS, LANGUAGE_LABELS, SUPPORTED_LANGUAGES } from '../types';
+import { useTheme } from '../contexts/ThemeContext';
 
 const VOICE_OPTIONS = [
   { id: 'alloy', label: 'Alloy (Neutral)' },
@@ -127,6 +122,7 @@ function SettingsSelect({
 }
 
 export function SettingsPage() {
+  const { darkMode, toggleDarkMode } = useTheme();
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
 
@@ -134,7 +130,7 @@ export function SettingsPage() {
     setSettings(loadSettings());
   }, []);
 
-  const updateSetting = <K extends keyof AppSettings>(
+  const updateSetting = useCallback(<K extends keyof AppSettings>(
     key: K,
     value: AppSettings[K]
   ) => {
@@ -143,14 +139,14 @@ export function SettingsPage() {
     saveSettings(updated);
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
-  };
+  }, [settings]);
 
-  const resetToDefaults = () => {
+  const resetToDefaults = useCallback(() => {
     setSettings({ ...DEFAULT_SETTINGS });
     saveSettings(DEFAULT_SETTINGS);
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
-  };
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto px-4 md:px-8 py-12">
@@ -203,7 +199,7 @@ export function SettingsPage() {
           >
             <SettingsSelect
               value={settings.language}
-              onChange={(val) => updateSetting('language', val as LanguageCode)}
+              onChange={(val) => updateSetting('language', val as typeof settings.language)}
               options={SUPPORTED_LANGUAGES.map((lang) => ({
                 value: lang,
                 label: LANGUAGE_LABELS[lang],
@@ -218,7 +214,7 @@ export function SettingsPage() {
           >
             <SettingsSelect
               value={settings.level}
-              onChange={(val) => updateSetting('level', val as AppSettings['level'])}
+              onChange={(val) => updateSetting('level', val as typeof settings.level)}
               options={[
                 { value: 'A1', label: 'A1 — Beginner' },
                 { value: 'A2', label: 'A2 — Elementary' },
@@ -264,9 +260,9 @@ export function SettingsPage() {
           >
             <button
               type="button"
-              onClick={() => updateSetting('darkMode', !settings.darkMode)}
+              onClick={toggleDarkMode}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                settings.darkMode
+                darkMode
                   ? 'bg-slate-700 text-white'
                   : 'bg-slate-100 text-slate-700'
               } hover:shadow-md`}
@@ -275,9 +271,9 @@ export function SettingsPage() {
                 fontFamily: 'var(--font-body)',
                 fontSize: '0.875rem',
               }}
-              aria-pressed={settings.darkMode}
+              aria-pressed={darkMode}
             >
-              {settings.darkMode ? (
+              {darkMode ? (
                 <>
                   <Moon size={16} aria-hidden="true" />
                   Dark

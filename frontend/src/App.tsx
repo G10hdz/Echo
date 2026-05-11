@@ -1,6 +1,7 @@
 import { Component, type ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { Sidebar } from './components/Sidebar';
 import { PracticePage } from './pages/PracticePage';
 import { ProgressPage } from './pages/ProgressPage';
@@ -74,26 +75,28 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <Router>
-          <Sidebar />
-          <main
-            id="main-content"
-            className="md:ml-[var(--sidebar-width)] min-h-screen"
-            style={{ paddingLeft: '0', paddingTop: '3.5rem', maxWidth: '100%' }}
-          >
-            <div className="max-w-[var(--content-max)] mx-auto">
-              <Routes>
-                <Route path="/" element={<PracticePage />} />
-                <Route path="/progress" element={<ProgressPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-              </Routes>
-            </div>
-          </main>
-        </Router>
-      </ErrorBoundary>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ErrorBoundary>
+          <Router>
+            <Sidebar />
+            <main
+              id="main-content"
+              className="md:ml-[var(--sidebar-width)] min-h-screen"
+              style={{ paddingLeft: '0', paddingTop: '3.5rem', maxWidth: '100%' }}
+            >
+              <div className="max-w-[var(--content-max)] mx-auto">
+                <Routes>
+                  <Route path="/" element={<PracticePage />} />
+                  <Route path="/progress" element={<ProgressPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                </Routes>
+              </div>
+            </main>
+          </Router>
+        </ErrorBoundary>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
