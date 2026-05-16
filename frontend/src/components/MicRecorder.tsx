@@ -113,7 +113,7 @@ export function MicRecorder({
               transition={
                 prefersReducedMotion
                   ? { duration: 0 }
-                  : { type: 'spring', stiffness: 500, damping: 28, mass: 0.4 }
+                  : { type: 'spring' as const, stiffness: 500, damping: 28, mass: 0.4 }
               }
             />
           ))}
@@ -204,7 +204,7 @@ export function MicRecorder({
           transition={
             isRecording && !prefersReducedMotion
               ? { duration: 1.2, repeat: Infinity, ease: 'easeInOut' }
-              : { type: 'spring', stiffness: 400, damping: 20 }
+              : { type: 'spring' as const, stiffness: 400, damping: 20 }
           }
           aria-label={isRecording ? 'Stop recording' : audioBlob ? 'Recording complete' : 'Start recording'}
         >
@@ -215,7 +215,7 @@ export function MicRecorder({
                 initial={{ scale: 0, rotate: -45 }}
                 animate={{ scale: 1, rotate: 0 }}
                 exit={{ scale: 0, rotate: 45 }}
-                transition={{ duration: 0.22, type: 'spring', stiffness: 450, damping: 22 }}
+                transition={{ duration: 0.22, type: 'spring' as const, stiffness: 450, damping: 22 }}
               >
                 <Square size={22} fill="white" color="white" strokeWidth={0} />
               </motion.div>
@@ -225,7 +225,7 @@ export function MicRecorder({
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
-                transition={{ duration: 0.22, type: 'spring', stiffness: 450, damping: 22 }}
+                transition={{ duration: 0.22, type: 'spring' as const, stiffness: 450, damping: 22 }}
               >
                 <div
                   className="w-7 h-7 rounded-full flex items-center justify-center"
@@ -251,7 +251,7 @@ export function MicRecorder({
                 initial={{ scale: 0, rotate: 45 }}
                 animate={{ scale: 1, rotate: 0 }}
                 exit={{ scale: 0, rotate: -45 }}
-                transition={{ duration: 0.22, type: 'spring', stiffness: 450, damping: 22 }}
+                transition={{ duration: 0.22, type: 'spring' as const, stiffness: 450, damping: 22 }}
               >
                 <Mic size={28} color="white" strokeWidth={2} />
               </motion.div>

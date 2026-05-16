@@ -87,8 +87,8 @@ const pageVariants = {
 };
 
 const pageTransition = {
-  type: 'tween',
-  ease: [0.25, 0.1, 0.25, 1],
+  type: 'tween' as const,
+  ease: 'easeInOut' as const,
   duration: 0.3,
 };
 

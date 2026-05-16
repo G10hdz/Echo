@@ -52,7 +52,7 @@ export function ResultsPage() {
         className="flex justify-center mb-8"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, type: 'spring' }}
+        transition={{ duration: 0.6, type: 'spring' as const }}
       >
         <div className="relative w-36 h-36">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
