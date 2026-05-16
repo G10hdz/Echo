@@ -1,11 +1,15 @@
 import { Component, type ReactNode } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Sidebar } from './components/Sidebar';
+import { HomePage } from './pages/HomePage';
 import { PracticePage } from './pages/PracticePage';
 import { ProgressPage } from './pages/ProgressPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { OnboardingPage } from './pages/OnboardingPage';
+import { ResultsPage } from './pages/ResultsPage';
 import { AlertTriangle } from 'lucide-react';
 
 const queryClient = new QueryClient({
@@ -73,26 +77,156 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/*  Animated route wrapper — page-level transitions                     */
+/* ------------------------------------------------------------------ */
+const pageVariants = {
+  initial: { opacity: 0, y: 12 },
+  in: { opacity: 1, y: 0 },
+  out: { opacity: 0, y: -12 },
+};
+
+const pageTransition = {
+  type: 'tween',
+  ease: [0.25, 0.1, 0.25, 1],
+  duration: 0.3,
+};
+
+
+function OnboardingGate({ children }: { children: ReactNode }) {
+  const location = useLocation();
+  const isOnboarded = localStorage.getItem('echo_onboarded') === 'true';
+  const isOnboardingPage = location.pathname === '/onboarding';
+
+  if (!isOnboarded && !isOnboardingPage) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route
+          path="/"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
+            >
+              <HomePage />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/practice"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
+            >
+              <PracticePage />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/progress"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
+            >
+              <ProgressPage />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
+            >
+              <SettingsPage />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/onboarding"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
+            >
+              <OnboardingPage />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/results"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
+            >
+              <ResultsPage />
+            </motion.div>
+          }
+        />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
+
+function AppLayout() {
+  const location = useLocation();
+  const isOnboarding = location.pathname === '/onboarding';
+
+  return (
+    <OnboardingGate>
+      {!isOnboarding && <Sidebar />}
+      <main
+        id="main-content"
+        className={isOnboarding ? 'min-h-screen' : 'md:ml-[var(--sidebar-width)] min-h-screen pt-14 md:pt-0'}
+      >
+        <div className="max-w-[var(--content-max)] mx-auto">
+          <AnimatedRoutes />
+        </div>
+      </main>
+    </OnboardingGate>
+  );
+}
+
 function App() {
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
           <Router>
-            <Sidebar />
-            <main
-              id="main-content"
-              className="md:ml-[var(--sidebar-width)] min-h-screen"
-              style={{ paddingLeft: '0', paddingTop: '3.5rem', maxWidth: '100%' }}
-            >
-              <div className="max-w-[var(--content-max)] mx-auto">
-                <Routes>
-                  <Route path="/" element={<PracticePage />} />
-                  <Route path="/progress" element={<ProgressPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                </Routes>
-              </div>
-            </main>
+            <AppLayout />
           </Router>
         </ErrorBoundary>
       </QueryClientProvider>

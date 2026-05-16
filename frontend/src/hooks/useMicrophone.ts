@@ -10,6 +10,7 @@ interface UseMicrophoneReturn {
   stopRecording: () => void;
   resetRecording: () => void;
   waveformRef: React.RefObject<HTMLCanvasElement | null>;
+  analyserRef: React.RefObject<AnalyserNode | null>;
 }
 
 export function useMicrophone(): UseMicrophoneReturn {
@@ -154,5 +155,6 @@ export function useMicrophone(): UseMicrophoneReturn {
     stopRecording,
     resetRecording,
     waveformRef: waveformCanvasRef,
+    analyserRef,
   };
 }
