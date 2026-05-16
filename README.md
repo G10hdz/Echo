@@ -1,131 +1,80 @@
-# Echo — AI Pronunciation Coach
+# Echo — Pronunciation Practice
 
-> Real-time pronunciation feedback powered by Whisper STT, word-level phonetic scoring, and ElevenLabs TTS.
+**Live:** https://echo-pronunciation.netlify.app/
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](backend/requirements.txt)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](frontend/package.json)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](backend/main.py)
+An AI-powered pronunciation practice app. Record your voice, get instant analysis, and improve your pronunciation through visual waveform comparison and phoneme-level feedback.
 
 ---
 
 ## What it does
 
-Echo helps language learners improve pronunciation through an instant listen → speak → score loop:
-
-1. **Get a sentence** — curated by CEFR level (A1–C2)
-2. **Record yourself** — in-browser microphone with live waveform visualization
-3. **See word-level feedback** — 🟢 correct / 🟠 partial / 🔴 incorrect, per word
-4. **Hear correct pronunciation** — ElevenLabs neural TTS playback
-5. **Track your progress** — score history, streak, and flagged-words dashboard
-
----
-
-## Architecture
-
-```
-Browser (React 19 + Vite)
-  │  MediaRecorder API → audio blob
-  │  Canvas API → live waveform
-  ▼
-FastAPI  ─  /api/practice/analyze  (single round-trip)
-  ├── ffmpeg           audio normalization → 16 kHz WAV
-  ├── faster-whisper   speech-to-text transcription
-  ├── EchoScorer       word-level Levenshtein scoring
-  └── ElevenLabs TTS   correct-pronunciation audio
-  ▼
-SQLite   session history & progress tracking
-```
+- Record your pronunciation of target sentences
+- Compare your waveform against a native speaker reference
+- Get a score with phoneme-level breakdown (correct / partial / missed)
+- Track progress over time with session history and streaks
+- Supports English and Spanish (Mandarin planned)
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| **STT** | `faster-whisper` (CTranslate2, ROCm/CUDA) |
-| **Scoring** | `python-Levenshtein` — word-level, 3-tier threshold |
-| **TTS** | ElevenLabs API (`eleven_multilingual_v2`) |
-| **Backend** | FastAPI — async, graceful-degradation design |
-| **Frontend** | React 19 + TypeScript + Tailwind v4 + TanStack Query |
-| **Database** | SQLite + SQLAlchemy |
-| **Deploy** | Google Cloud Run (backend) + Netlify (frontend) |
+| Layer | Tech |
+|-------|------|
+| Frontend | React 18 + TypeScript + Vite |
+| Styling | Tailwind CSS + custom design tokens |
+| Design system | Clinical Sublime (Positronica family) |
+| Charts | Recharts |
+| Icons | Lucide React |
+| Audio | Web Audio API |
+| TTS | ElevenLabs API |
+| Deployment | Netlify |
 
 ---
 
-## Scoring Algorithm
+## Design System
 
-Three-tier word-level scoring:
+Echo uses the **Clinical Sublime** design system — part of the Positronica Labs design family.
 
-```python
-for each (expected_word, actual_word):
-    sim = levenshtein_ratio(expected_word, actual_word)
-    if sim >= 0.85:   status = "correct"    # 🟢
-    elif sim >= 0.60: status = "partial"    # 🟠
-    else:             status = "incorrect"  # 🔴
-```
+- **Colors:** Lavender `#C4B5E3` primary, biological pink accent, synthetic green, quantum gold
+- **Typography:** Orbitron (headlines, uppercase) + Inter (body)
+- **Surfaces:** Pure white background with lavender dot-grid, glassmorphism cards (`blur(8px)`)
+- **Borders:** Ghost borders (`rgba(196, 181, 227, 0.25)`) — no solid 1px lines
+- **Shadows:** Lavender ambient glows only — no grey box-shadows
+- **Corners:** Sharp (`sm`/`md` radius) — lab-grade precision aesthetic
+- **Scrollbar:** 6px lavender, no rounding
 
-Overall score = sequence-level Levenshtein ratio (handles insertions, deletions, substitutions across the full sentence). Next: WhisperX word-confidence scores → phoneme-level DTW alignment.
+Dark mode fully supported via `data-theme="dark"` and `prefers-color-scheme`.
 
 ---
 
-## Quick Start
+## Screens
 
-### Backend
+| Screen | Status | Notes |
+|--------|--------|-------|
+| Practice | ✅ Live | Main pronunciation recording + analysis |
+| Progress | ✅ Live | Session history, accuracy charts |
+| Settings | ✅ Live | Language, level, voice, dark mode |
+| Home / Dashboard | 🎨 Designed | Streak, stats, recent sessions — pending impl |
+| Onboarding | 🎨 Designed | 3-step language + level setup — pending impl |
+| Session Results | 🎨 Designed | Post-session score + waveform — pending impl |
 
-```bash
-cd backend
-pip install -r requirements.txt
+**Stitch designs:** `projects/3137471133853841416`
 
-export ELEVENLABS_API_KEY=your_key_here   # optional — falls back to Kokoro TTS
-export WHISPER_MODEL_SIZE=base            # base | small | medium
+---
 
-python main.py          # → http://localhost:8000
-# GET /health shows which services are active
-```
-
-### Frontend
+## Local Setup
 
 ```bash
 cd frontend
 npm install
-echo "VITE_API_ORIGIN=http://localhost:8000" > .env.local
-npm run dev             # → http://localhost:5173
+npm run dev
 ```
 
----
-
-## Cloud Deployment
-
-```bash
-# Backend → Google Cloud Run (uses Doppler for secrets)
-./scripts/cloud-run-deploy.sh
-
-# Frontend → Netlify (set VITE_API_ORIGIN to Cloud Run URL)
-cd frontend && npm run build   # upload dist/
+Requires `.env` in `frontend/`:
 ```
-
-Key env vars:
-
-| Variable | Description |
-|---|---|
-| `ELEVENLABS_API_KEY` | ElevenLabs API key |
-| `ECHO_CORS_ORIGINS` | Comma-separated allowed browser origins |
-| `WHISPER_MODEL_SIZE` | `base` (default) / `small` / `medium` |
-
----
-
-## API Endpoints
-
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/health` | Service status (whisper, tts, scorer, db) |
-| `POST` | `/api/practice/analyze` | Full pipeline: audio → transcription → score → TTS |
-| `POST` | `/api/transcribe` | STT only |
-| `POST` | `/api/score` | Scoring only (text → text) |
-| `POST` | `/api/tts` | TTS only |
-| `GET` | `/api/sentences` | Practice sentences by level + language |
-| `GET` | `/api/progress/{user_id}` | User stats + session history |
+VITE_ELEVENLABS_API_KEY=your_key_here
+VITE_API_URL=http://localhost:8000
+```
 
 ---
 
@@ -133,39 +82,41 @@ Key env vars:
 
 ```
 Echo/
-├── backend/
-│   ├── main.py              # FastAPI app — all endpoints
-│   ├── scoring.py           # EchoScorer — Levenshtein engine
-│   ├── whisper_service.py   # faster-whisper STT wrapper
-│   ├── kokoro_service.py    # Kokoro TTS (local fallback)
-│   ├── database.py          # SQLAlchemy models + queries
-│   └── models.py            # Pydantic request/response schemas
-├── frontend/src/
-│   ├── pages/               # PracticePage, ProgressPage
-│   ├── components/          # MicRecorder, ScoreDisplay, ProgressChart
-│   ├── hooks/               # useMicrophone (MediaRecorder + canvas waveform)
-│   └── services/api.ts      # typed fetch client with retry + backoff
-├── scripts/
-│   └── cloud-run-deploy.sh  # Doppler + gcloud build + deploy
-└── Dockerfile
+├── frontend/
+│   ├── src/
+│   │   ├── components/       # MicRecorder, WaveComparison, ScoreDisplay, Sidebar
+│   │   ├── pages/            # PracticePage, ProgressPage, SettingsPage
+│   │   ├── hooks/            # useMicrophone
+│   │   ├── contexts/         # ThemeContext
+│   │   └── index.css         # Design token definitions
+│   └── index.html            # Orbitron + Inter font imports
+├── backend/                  # FastAPI (WIP)
+├── ROADMAP.md                # Full feature roadmap + Stitch screen IDs
+└── netlify.toml              # Deployment config
 ```
 
 ---
 
-## Roadmap
+## Roadmap Highlights
 
-- [x] Phase 1 — Telegram bot MVP (Whisper + Levenshtein + Kokoro TTS)
-- [x] Phase 2 — React web app + FastAPI backend
-- [x] Phase 2.1 — ElevenLabs TTS integration
-- [ ] Phase 3 — WhisperX word-confidence scoring
-- [ ] Phase 4 — Phoneme-level DTW alignment (ELSA-grade)
-- [ ] Phase 5 — React Native mobile
+- **v0.2** — Home, Onboarding, Results pages implementation
+- **v0.3** — Recording button redesign, waveform Clinical Sublime update
+- **v0.4** — Page transitions, recording experience animations
+- **v1.0** — Auth, user accounts, backend persistence
+- **Future** — Mandarin (ZH) with tone indicators, pinyin overlay, pitch contour comparison
+
+See [ROADMAP.md](./ROADMAP.md) for full details.
 
 ---
 
-## Acknowledgments
+## Deployment
 
-- [ElevenLabs](https://elevenlabs.io/) — neural TTS voices
-- [ELSA Speak](https://elsaspeak.com/) — inspiration for phoneme-level scoring
-- [faster-whisper](https://github.com/SYSTRAN/faster-whisper) — STT engine
-- [Kokoro TTS](https://github.com/hexgrad/kokoro) — local TTS fallback
+Hosted on Netlify. Auto-deploys from `main` branch.
+
+```bash
+# Manual deploy
+npm run build
+# Netlify picks up dist/ automatically
+```
+
+Config: [`netlify.toml`](./netlify.toml) — build from `frontend/`, publish `frontend/dist/`.
