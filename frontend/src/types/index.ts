@@ -78,3 +78,38 @@ export interface SentenceRecord {
   topic?: string;
   times_practiced: number;
 }
+
+// ─── Settings Types ─────────────────────────────────────────────────────
+
+export const SUPPORTED_LANGUAGES = ['en', 'es', 'zh', 'fr'] as const;
+export type LanguageCode = typeof SUPPORTED_LANGUAGES[number];
+
+export const SUPPORTED_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
+export type LevelCode = typeof SUPPORTED_LEVELS[number];
+
+export interface AppSettings {
+  language: LanguageCode;
+  level: LevelCode;
+  voiceId: string;
+}
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  language: 'en',
+  level: 'A1',
+  voiceId: '',
+};
+
+export const LANGUAGE_LABELS: Record<LanguageCode, string> = {
+  en: 'English',
+  es: 'Spanish',
+  zh: 'Chinese',
+  fr: 'French',
+};
+
+export function isValidLanguage(code: string): code is LanguageCode {
+  return SUPPORTED_LANGUAGES.includes(code as LanguageCode);
+}
+
+export function isValidLevel(code: string): code is LevelCode {
+  return SUPPORTED_LEVELS.includes(code as LevelCode);
+}

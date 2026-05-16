@@ -8,7 +8,9 @@ import type {
   TTSResponse,
   ProgressResponse,
   SentenceRecord,
+  AppSettings,
 } from '../types';
+import { isValidLanguage, isValidLevel, DEFAULT_SETTINGS } from '../types';
 
 const API_ORIGIN = (import.meta.env.VITE_API_ORIGIN || '').replace(/\/$/, '');
 export const API_BASE = `${API_ORIGIN}/api`;
@@ -263,5 +265,30 @@ export async function analyzePronunciation(
   }
 
   return response.json();
+}
+
+const STORAGE_KEY = 'echo_settings';
+
+/** Load settings from localStorage (client-side only) */
+export function loadSettings(): AppSettings {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        language: isValidLanguage(parsed.language) ? parsed.language : 'en',
+        level: isValidLevel(parsed.level) ? parsed.level : 'A1',
+        voiceId: parsed.voiceId || '',
+      };
+    }
+  } catch {
+    // Fall through to defaults
+  }
+  return { ...DEFAULT_SETTINGS };
+}
+
+/** Persist settings to localStorage */
+export function saveSettings(settings: AppSettings): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
 }
 
