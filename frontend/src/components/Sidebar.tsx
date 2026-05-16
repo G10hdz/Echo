@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Mic, BarChart3, Settings, User, Menu, X, Flame } from 'lucide-react';
+import { Home, Mic, BarChart3, Settings, User, Menu, X, Flame, Moon, Sun } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SidebarProps {
   userName?: string;
@@ -10,9 +11,11 @@ interface SidebarProps {
 export function Sidebar({ userName = 'User', streakDays = 0 }: SidebarProps) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { darkMode, toggleDarkMode } = useTheme();
 
   const navItems = [
-    { path: '/', icon: Mic, label: 'Practice' },
+    { path: '/', icon: Home, label: 'Home' },
+    { path: '/practice', icon: Mic, label: 'Practice' },
     { path: '/progress', icon: BarChart3, label: 'Progress' },
     { path: '/settings', icon: Settings, label: 'Settings' },
   ];
@@ -88,6 +91,23 @@ export function Sidebar({ userName = 'User', streakDays = 0 }: SidebarProps) {
           );
         })}
       </nav>
+
+      <div className="px-4 pb-4">
+        <button
+          onClick={() => {
+            toggleDarkMode();
+            setMobileOpen(false);
+          }}
+          className="flex items-center gap-3 px-4 py-3 rounded-lg w-full transition-all"
+          style={{
+            color: 'var(--on-surface)',
+          }}
+          aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {darkMode ? <Sun size={20} aria-hidden="true" /> : <Moon size={20} aria-hidden="true" />}
+          <span>{darkMode ? 'Light mode' : 'Dark mode'}</span>
+        </button>
+      </div>
 
       <div className="p-4 text-center" style={{ color: 'var(--on-surface-variant)' }}>
         <p className="text-xs" style={{ fontFamily: 'var(--font-body)', opacity: 0.6 }}>
