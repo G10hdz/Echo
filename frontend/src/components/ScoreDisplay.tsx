@@ -126,7 +126,7 @@ export function ScoreDisplay({
       opacity: 1,
       y: 0,
       scale: 1,
-      transition: { type: 'spring', stiffness: 380, damping: 22 },
+      transition: { type: 'spring' as const, stiffness: 380, damping: 22 },
     },
   };
 
@@ -137,7 +137,7 @@ export function ScoreDisplay({
       aria-label="Pronunciation score results"
       initial={{ opacity: 0, y: 28 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] as [number,number,number,number] }}
     >
       {/* ================================================================ */}
       {/*  Circular progress + score header                                */}
@@ -173,7 +173,7 @@ export function ScoreDisplay({
               transition={
                 prefersReducedMotion
                   ? { duration: 0 }
-                  : { duration: 1.3, ease: [0.25, 0.1, 0.25, 1] }
+                  : { duration: 1.3, ease: [0.25, 0.1, 0.25, 1] as [number,number,number,number] }
               }
               transform={`rotate(-90 ${size / 2} ${size / 2})`}
               style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.06))' }}
@@ -187,7 +187,7 @@ export function ScoreDisplay({
               style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface)' }}
               initial={{ opacity: 0, scale: 0.75 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.25, type: 'spring', stiffness: 300, damping: 18 }}
+              transition={{ delay: 0.25, type: 'spring' as const, stiffness: 300, damping: 18 }}
             >
               {displayedScore}
               <span className="text-lg font-medium ml-0.5" style={{ color: 'var(--on-surface-variant)' }}>
@@ -313,7 +313,7 @@ export function ScoreDisplay({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ delay: 0.55, duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ delay: 0.55, duration: 0.4, ease: [0.25, 0.1, 0.25, 1] as [number,number,number,number] }}
           >
             <h4
               className="text-base font-semibold mb-3"
