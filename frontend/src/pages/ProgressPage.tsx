@@ -31,6 +31,17 @@ export function ProgressPage() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
+        <div className="mb-8">
+          <h1
+            className="text-3xl md:text-4xl font-bold mb-2"
+            style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface)' }}
+          >
+            Your Progress
+          </h1>
+          <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.125rem' }}>
+            Track your pronunciation journey
+          </p>
+        </div>
         <div className="skeleton" style={{ height: '2.5rem', width: '40%', marginBottom: '0.5rem' }} />
         <div className="skeleton" style={{ height: '1.25rem', width: '60%', marginBottom: '2rem' }} />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -51,6 +62,17 @@ export function ProgressPage() {
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
+        <div className="mb-8">
+          <h1
+            className="text-3xl md:text-4xl font-bold mb-2"
+            style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface)' }}
+          >
+            Your Progress
+          </h1>
+          <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.125rem' }}>
+            Track your pronunciation journey
+          </p>
+        </div>
         <div
           className="toast-error flex items-center gap-3 p-4 rounded-lg"
           style={{ backgroundColor: 'var(--error-container)', color: 'var(--on-error-container)' }}
@@ -69,6 +91,17 @@ export function ProgressPage() {
   if (!progress) {
     return (
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
+        <div className="mb-8">
+          <h1
+            className="text-3xl md:text-4xl font-bold mb-2"
+            style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface)' }}
+          >
+            Your Progress
+          </h1>
+          <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.125rem' }}>
+            Track your pronunciation journey
+          </p>
+        </div>
         <div className="card text-center" style={{ minHeight: '16rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <BookOpen size={48} style={{ color: 'var(--on-surface-variant)', opacity: 0.4, marginBottom: '1rem' }} aria-hidden="true" />
           <h3

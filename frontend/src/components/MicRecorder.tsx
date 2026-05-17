@@ -206,7 +206,7 @@ export function MicRecorder({
               ? { duration: 1.2, repeat: Infinity, ease: 'easeInOut' }
               : { type: 'spring' as const, stiffness: 400, damping: 20 }
           }
-          aria-label={isRecording ? 'Stop recording' : audioBlob ? 'Recording complete' : 'Start recording'}
+          aria-label={isRecording ? 'Stop recording microphone' : audioBlob ? 'Recording complete' : 'Start microphone recording'}
         >
           <AnimatePresence mode="wait">
             {isRecording ? (
