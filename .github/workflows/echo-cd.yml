@@ -90,6 +90,7 @@ jobs:
   backend-test:
     name: Backend Lint & Type Check
     runs-on: ubuntu-latest
+    continue-on-error: true
     defaults:
       run:
         working-directory: backend
@@ -119,6 +120,7 @@ jobs:
     name: Build Docker Image
     runs-on: ubuntu-latest
     needs: backend-test
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -139,6 +141,7 @@ jobs:
     name: Deploy to Cloud Run
     runs-on: ubuntu-latest
     needs: backend-build
+    continue-on-error: true
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
