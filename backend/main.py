@@ -343,7 +343,7 @@ async def analyze_pronunciation(
 
         # 3. Score
         if transcription_text:
-            score_result = scorer.score(expected=expected_text, actual=transcription_text)
+            score_result = scorer.score(expected=expected_text, actual=transcription_text, language=language)
         else:
             score_result = None
 

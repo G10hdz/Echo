@@ -10,7 +10,8 @@ from typing import Optional
 # Rachel: clear American English, ideal for pronunciation coaching
 VOICE_MAP = {
     "en": "21m00Tcm4TlvDq8ikWAM",   # Rachel — natural American English
-    "es": "AZnzlk1XvdvUeBnXmlld",   # Domi — clear Spanish-accented
+    "es": "EXAVITQu4vr4xnSDxMaL",   # Sarah — clear, multilingual_v2
+    "zh": "EXAVITQu4vr4xnSDxMaL",   # Sarah — multilingual_v2 supports zh
 }
 
 DEFAULT_MODEL = "eleven_multilingual_v2"
