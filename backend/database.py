@@ -123,6 +123,18 @@ class DatabaseManager:
                     ("La casa es muy grande y bonita", "es", "A1", "home"),
                     ("Quiero comer una manzana roja", "es", "A1", "food"),
                     ("El gato duerme en el sofá", "es", "A1", "animals"),
+
+                    # A1 Mandarin Chinese (zh-CN)
+                    ("你好我是学生", "zh", "A1", "greeting"),
+                    ("今天天气很好", "zh", "A1", "weather"),
+                    ("我喝水", "zh", "A1", "food"),
+                    ("这是我的猫", "zh", "A1", "home"),
+                    ("他去学校", "zh", "A1", "daily"),
+                    ("你好吗", "zh", "A1", "greeting"),
+                    ("我的名字叫小红", "zh", "A1", "intro"),
+                    ("猫在沙发上", "zh", "A1", "animals"),
+                    ("我要一杯茶", "zh", "A1", "food"),
+                    ("他是老师", "zh", "A1", "people"),
                 ]
 
                 conn.executemany(

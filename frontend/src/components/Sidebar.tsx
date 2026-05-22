@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Mic, BarChart3, Settings, User, Menu, X, Flame, Moon, Sun } from 'lucide-react';
+import { Home, Mic, BarChart3, Settings, User, Menu, X, Flame, Moon, Sun, Languages } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -13,9 +13,10 @@ export function Sidebar({ userName = 'User', streakDays = 0 }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { darkMode, toggleDarkMode } = useTheme();
 
-  const navItems = [
+const navItems = [
     { path: '/', icon: Home, label: 'Home' },
     { path: '/practice', icon: Mic, label: 'Practice' },
+    { path: '/practice/zh', icon: Languages, label: '中文 Practice' },
     { path: '/progress', icon: BarChart3, label: 'Progress' },
     { path: '/settings', icon: Settings, label: 'Settings' },
   ];

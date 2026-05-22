@@ -113,3 +113,30 @@ export function isValidLanguage(code: string): code is LanguageCode {
 export function isValidLevel(code: string): code is LevelCode {
   return SUPPORTED_LEVELS.includes(code as LevelCode);
 }
+
+// ─── Mandarin Tone Types ──────────────────────────────────────────────────
+
+export type ToneNumber = 1 | 2 | 3 | 4 | 0;
+
+export interface PitchContour {
+  points: number[];
+  sampleRate: number;
+  duration: number;
+  confidence: number;
+}
+
+export interface SyllableToneScore {
+  char: string;
+  pinyin: string;
+  expectedTone: ToneNumber;
+  detectedTone: ToneNumber;
+  toneScore: number;
+  confidence: number;
+}
+
+export interface ToneScoreResult {
+  overallToneScore: number;
+  syllables: SyllableToneScore[];
+  pitchContour: PitchContour;
+  method: 'pitch' | 'pinyin-fallback';
+}

@@ -8,6 +8,7 @@ import type { ProgressResponse } from '../types';
 const LANGUAGES = [
   { code: 'en', label: 'EN' },
   { code: 'es', label: 'ES' },
+  { code: 'zh', label: '中文' },
 ];
 
 export function HomePage() {
@@ -92,7 +93,7 @@ export function HomePage() {
 
         {/* Start CTA */}
         <motion.button
-          onClick={() => navigate('/practice')}
+          onClick={() => navigate(language === 'zh' ? '/practice/zh' : '/practice')}
           className="inline-flex items-center gap-3 px-8 py-4 rounded-xl text-lg font-bold"
           style={{
             background: 'linear-gradient(135deg, var(--primary), var(--accent))',
@@ -175,7 +176,7 @@ export function HomePage() {
                 whileHover={{ x: 4, backgroundColor: 'var(--surface-container-low)' }}
               >
                 <span className="text-lg">
-                  {language === 'es' ? '🇪🇸' : '🇺🇸'}
+                  {language === 'zh' ? '🇨🇳' : language === 'es' ? '🇪🇸' : '🇺🇸'}
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate" style={{ color: 'var(--on-surface)' }}>

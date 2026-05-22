@@ -51,6 +51,13 @@ const config: Config = {
           missed: '#7a7674',
           'missed-bg': 'rgba(122, 118, 116, 0.1)',
         },
+        tone: {
+          1: '#C4B5E3',
+          2: '#A85880',
+          3: '#D4AF37',
+          4: '#58A880',
+          0: '#8A8A8A',
+        },
       },
       fontFamily: {
         headline: ["'DM Serif Display'", 'Georgia', 'serif'],

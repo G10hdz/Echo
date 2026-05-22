@@ -12,7 +12,7 @@ import type {
 } from '../types';
 import { isValidLanguage, isValidLevel, DEFAULT_SETTINGS } from '../types';
 
-const API_ORIGIN = (import.meta.env.VITE_API_ORIGIN || '').replace(/\/$/, '');
+const API_ORIGIN = (import.meta.env.VITE_API_ORIGIN || 'https://echo-backend-527601165113.us-central1.run.app').replace(/\/$/, '');
 export const API_BASE = `${API_ORIGIN}/api`;
 
 /** Resolve `/audio/...` or absolute URLs for <audio> / fetch when API is on another origin. */

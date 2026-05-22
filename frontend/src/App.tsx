@@ -10,6 +10,7 @@ import { ProgressPage } from './pages/ProgressPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { ResultsPage } from './pages/ResultsPage';
+import { MandarinPracticePage } from './pages/MandarinPracticePage';
 import { AlertTriangle } from 'lucide-react';
 
 const queryClient = new QueryClient({
@@ -178,6 +179,20 @@ function AnimatedRoutes() {
               transition={pageTransition}
             >
               <OnboardingPage />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/practice/zh"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
+            >
+              <MandarinPracticePage />
             </motion.div>
           }
         />

@@ -83,6 +83,16 @@ class SentenceRecord(BaseModel):
     times_practiced: int = 0
 
 
+class SyllableToneData(BaseModel):
+    """Per-syllable tone data for Mandarin/CJK responses"""
+    char: str
+    pinyin: str
+    expected_tone: int
+    detected_tone: int
+    tone_score: float
+    confidence: float
+
+
 class AnalyzeResponse(BaseModel):
     """Response from the merged /api/practice/analyze endpoint"""
     session_id: int
@@ -91,3 +101,5 @@ class AnalyzeResponse(BaseModel):
     language: str = "en"
     score: Optional[ScoreResponse] = None
     tts_url: Optional[str] = None
+    pinyin: Optional[List[dict]] = None
+    tone_data: Optional[List[SyllableToneData]] = None
