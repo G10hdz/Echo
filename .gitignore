@@ -29,3 +29,16 @@ frontend/.env.production
 docs/PLANNING.md
 .netlify/
 frontend/.netlify/
+
+# AI Agent caches
+graphify-out/
+.claude/
+.qwen/
+.cursor/
+.aider/
+.cocoindex_code/
+*.pyc
+__pycache__/
+.env
+.env.local
+*.log
