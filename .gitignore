@@ -42,3 +42,4 @@ __pycache__/
 .env
 .env.local
 *.log
+.DS_Store
