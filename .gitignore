@@ -15,10 +15,16 @@ node_modules/
 frontend/dist/
 frontend/.tmp/
 
-# Build
-*.log
+# Secrets / local env
 .env
+.env.local
 frontend/.env.production
+
+# Logs
+*.log
+
+# OS
+.DS_Store
 
 # Business/Strategy (confidential)
 *SaaS*
@@ -37,9 +43,4 @@ graphify-out/
 .cursor/
 .aider/
 .cocoindex_code/
-*.pyc
-__pycache__/
-.env
-.env.local
-*.log
-.DS_Store
+

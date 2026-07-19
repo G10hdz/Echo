@@ -93,23 +93,3 @@ class KokoroService:
 
         print(f"✅ Audio saved to {output_path}")
         return output_path
-
-    async def generate_words(
-        self,
-        words: list,
-        output_dir: str,
-        language: str = "en"
-    ) -> list:
-        """Generate TTS audio for multiple words (for practice)"""
-        audio_files = []
-
-        for word in words:
-            output_path = os.path.join(output_dir, f"{word}.wav")
-            await self.generate(
-                text=word,
-                output_path=output_path,
-                language=language
-            )
-            audio_files.append(output_path)
-
-        return audio_files

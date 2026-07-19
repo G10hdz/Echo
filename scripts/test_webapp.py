@@ -13,7 +13,7 @@ import json
 from datetime import datetime
 from playwright.sync_api import sync_playwright, Page, expect
 
-BASE_URL = "https://echo-pronunciation-23a4fc3a.netlify.app"
+BASE_URL = "https://echo-pronunciation.netlify.app"
 
 PASS = "✅"
 FAIL = "❌"
