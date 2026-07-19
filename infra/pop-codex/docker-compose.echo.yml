@@ -1,0 +1,115 @@
+# Echo self-hosted TTS/STT/scoring stack.
+# One commit, any box. See docs/POPCODEX_DEPLOY.md.
+#
+# Services:
+#   kokoro-tts       :5315   TTS neural (en/es/zh, MIT Kokoro-82M)
+#   whisper-stt      :5316   STT faster-whisper (en/es/zh + 90 more)
+#   phoneme-scorer   :5317   wav2vec2 phoneme scorer + IPA diff
+#   rhubarb-lipsync  :5318   audio → visemes JSON (Rhubarb, GPL)
+#   piper-tts        :5319   TTS fast CPU (Onnx, 0.1s/sentence)
+#   edge-tts-proxy   :5320   edge-tts cache proxy (free Azure neural)
+#
+# Health: every service exposes GET /health → {"status":"ok"}.
+
+services:
+  kokoro-tts:
+    image: ghcr.io/remsky/kokoro-fastapi:latest-cpu
+    container_name: echo-kokoro
+    restart: unless-stopped
+    ports: ["${KOKORO_PORT:-5315}:8880"]
+    environment:
+      KOKORO_PORT: 8880
+    volumes:
+      - ${ECHO_DATA_DIR}/kokoro/models:/root/.local/share/kokoro
+      - ${ECHO_DATA_DIR}/kokoro/cache:/app/cache
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8880/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  whisper-stt:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: echo-whisper
+    restart: unless-stopped
+    ports: ["${WHISPER_PORT:-5316}:9000"]
+    environment:
+      ASR_MODEL: ${WHISPER_MODEL:-base}
+      ASR_ENGINE: openai_whisper
+    volumes:
+      - ${ECHO_DATA_DIR}/whisper/models:/root/.cache/whisper
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:9000/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+
+  phoneme-scorer:
+    build:
+      context: ./services/phoneme-scorer
+    container_name: echo-scorer
+    restart: unless-stopped
+    ports: ["${SCORER_PORT:-5317}:8000"]
+    environment:
+      HF_HOME: ${ECHO_DATA_DIR}/scorer/hf
+      MODEL_CACHE: ${ECHO_DATA_DIR}/scorer/models
+    volumes:
+      - ${ECHO_DATA_DIR}/scorer/hf:/models
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 180s
+
+  rhubarb-lipsync:
+    build:
+      context: ./services/rhubarb-lipsync
+    container_name: echo-rhubarb
+    restart: unless-stopped
+    ports: ["${RHUBARB_PORT:-5318}:8000"]
+    volumes:
+      - ${ECHO_DATA_DIR}/rhubarb/jobs:/jobs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  piper-tts:
+    build:
+      context: ./services/piper-tts
+    container_name: echo-piper
+    restart: unless-stopped
+    ports: ["${PIPER_PORT:-5319}:8000"]
+    environment:
+      PIPER_VOICES_DIR: /voices
+      PIPER_VOICE_EN: ${PIPER_VOICE_EN:-en_US-amy-medium}
+      PIPER_VOICE_ES: ${PIPER_VOICE_ES:-es_MX-ald-medium}
+      PIPER_VOICE_ZH: ${PIPER_VOICE_ZH:-cmn_hans-cn-xiaoxiao-medium}
+    volumes:
+      - ${ECHO_DATA_DIR}/piper/voices:/voices
+      - ${ECHO_DATA_DIR}/piper/cache:/cache
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  edge-tts-proxy:
+    build:
+      context: ./services/edge-tts-proxy
+    container_name: echo-edge-tts
+    restart: unless-stopped
+    ports: ["${EDGE_PROXY_PORT:-5320}:8000"]
+    environment:
+      CACHE_DIR: /cache
+    volumes:
+      - ${ECHO_DATA_DIR}/edge-tts/cache:/cache
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
