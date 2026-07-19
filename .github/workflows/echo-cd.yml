@@ -1,3 +1,4 @@
+# Canonical deploy path. cloudbuild.yaml y deploy.sh son fallbacks manuales.
 name: Echo CI/CD
 
 on:
@@ -93,7 +94,6 @@ jobs:
   backend-test:
     name: Backend Lint & Type Check
     runs-on: ubuntu-latest
-    continue-on-error: true
     defaults:
       run:
         working-directory: backend
@@ -119,11 +119,15 @@ jobs:
       - name: Check syntax
         run: python -m py_compile main.py scoring.py whisper_service.py kokoro_service.py elevenlabs_service.py database.py models.py
 
+      - name: Unit tests
+        run: |
+          pip install pytest python-Levenshtein
+          python -m pytest tests/ -q
+
   backend-build:
     name: Build Docker Image
     runs-on: ubuntu-latest
     needs: backend-test
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -163,6 +167,7 @@ jobs:
       - name: Build and push image
         run: |
           IMAGE="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.AR_REPO }}/echo-api:$(git rev-parse --short HEAD)"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
 
@@ -173,6 +178,7 @@ jobs:
             --region "${{ secrets.GCP_REGION }}" \
             --platform managed \
             --allow-unauthenticated \
-            --memory "${{ secrets.CLOUD_RUN_MEMORY || '8Gi' }}" \
-            --cpu "${{ secrets.CLOUD_RUN_CPU || '4' }}" \
-            --set-env-vars "ECHO_CORS_ORIGINS=${{ secrets.ECHO_CORS_ORIGINS }}"
+            --memory "${{ secrets.CLOUD_RUN_MEMORY || '4Gi' }}" \
+            --cpu "${{ secrets.CLOUD_RUN_CPU || '2' }}" \
+            --set-env-vars "ECHO_CORS_ORIGINS=${{ secrets.ECHO_CORS_ORIGINS }}" \
+            --set-secrets "ELEVENLABS_API_KEY=echo-elevenlabs-key:latest"
