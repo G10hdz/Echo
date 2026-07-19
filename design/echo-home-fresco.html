@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Echo · Fresco - practica tu pronunciaci&oacute;n</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal: #1A7A6B; --teal-hover: #156A5D; --teal-dim: #2A9A8B;
+  --amber: #E8B84A; --amber-hover: #D0A030;
+  --bg: #FAFAFA; --surface: #FFFFFF; --surface-elevated: #F5F5F5;
+  --fg: #0E1412; --muted: #5A7268; --border: #D0E8E0; --border-light: #E8F5F0;
+  --glow: rgba(232,184,74,0.25);
+  --radius-sm: 0.75rem; --radius-md: 1rem; --radius-lg: 1.5rem; --radius-xl: 2rem;
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --ease-out: cubic-bezier(0.16,1,0.3,1);
+  --ease-spring: cubic-bezier(0.32,0.72,0,1);
+}
+[data-theme="dark"] {
+  --teal: #7AC8B8; --teal-hover: #8AD8C8; --teal-dim: #5AAAA0;
+  --amber: #F0D080; --amber-hover: #E0C060;
+  --bg: #0E1412; --surface: #182220; --surface-elevated: #1E2A25;
+  --fg: #E0F0EA; --muted: #90B0A8; --border: #2A4840; --border-light: #1E3830;
+  --glow: rgba(240,208,128,0.20);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --teal: #7AC8B8; --teal-hover: #8AD8C8; --teal-dim: #5AAAA0;
+    --amber: #F0D080; --amber-hover: #E0C060;
+    --bg: #0E1412; --surface: #182220; --surface-elevated: #1E2A25;
+    --fg: #E0F0EA; --muted: #90B0A8; --border: #2A4840; --border-light: #1E3830;
+    --glow: rgba(240,208,128,0.20);
+  }
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-body);background:var(--bg);color:var(--fg);
+  line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden
+}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:var(--radius-sm)}
+.btn-primary:focus-visible, .session-card a:focus-visible{border-radius:999px}
+.theme-toggle:focus-visible{border-radius:50%}
+[hidden]{display:none!important}
+
+.skip-nav{
+  position:absolute;top:-100%;left:0;z-index:1000;
+  background:var(--teal);color:#fff;padding:.5rem 1rem;font-weight:600;
+  border-radius:0 0 var(--radius-sm) 0;transition:top 150ms var(--ease-out)
+}
+.skip-nav:focus{top:0}
+
+/* ---------- Fluid Island Topbar ---------- */
+.topbar-wrap{
+  position:sticky;top:0;z-index:50;padding:1rem 1.5rem 0;
+  display:flex;justify-content:center;pointer-events:none
+}
+.topbar{
+  pointer-events:auto;
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+  min-height:52px;padding:0 1rem 0 1.5rem;
+  background:rgba(255,255,255,0.88);backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(208,232,224,0.25);
+  border-radius:999px;box-shadow:0 4px 24px rgba(0,0,0,0.06);
+  max-width:680px;width:100%;
+  transition:box-shadow 300ms var(--ease-out);
+  animation:nav-in 600ms var(--ease-spring) both
+}
+[data-theme="dark"] .topbar{
+  background:rgba(24,34,32,0.88);border-color:rgba(42,72,64,0.25)
+}
+@keyframes nav-in{from{opacity:0;transform:translateY(-16px) scale(.96)}}
+.wordmark{
+  font-family:var(--font-display);font-size:1.05rem;font-weight:700;
+  letter-spacing:.08em;color:var(--teal);text-decoration:none
+}
+.topbar-right{display:flex;align-items:center;gap:.5rem}
+.streak-badge{
+  display:flex;align-items:center;gap:.35rem;
+  padding:.35rem .65rem .35rem .5rem;
+  background:var(--amber);color:#1A1810;border-radius:999px;
+  font-family:var(--font-mono);font-size:.7rem;font-weight:600;letter-spacing:.02em;
+  animation:streak-pulse 2s var(--ease-out) infinite
+}
+@keyframes streak-pulse{0%,100%{box-shadow:0 0 0 0 rgba(232,184,74,0.4)}50%{box-shadow:0 0 0 8px rgba(232,184,74,0)}}
+.streak-badge svg{width:14px;height:14px;flex:none}
+.theme-toggle{
+  width:44px;height:44px;border-radius:50%;border:1px solid var(--border-light);
+  background:transparent;cursor:pointer;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  transition:background 150ms var(--ease-out),color 150ms var(--ease-out);
+  font-size:1rem
+}
+.theme-toggle:hover{background:var(--surface-elevated);color:var(--fg)}
+
+/* ---------- Main Layout ---------- */
+main{max-width:1080px;margin:0 auto;padding:2rem 1.5rem 5rem}
+@media(max-width:768px){main{padding:1.5rem 1rem 4rem}}
+.page{display:flex;flex-direction:column;gap:2.5rem}
+@media(min-width:900px){.page{gap:3.5rem}}
+
+/* ---------- Hero: Asymmetrical Bento 2-col ---------- */
+.hero{display:grid;gap:1.5rem}
+@media(min-width:900px){.hero{grid-template-columns:1.3fr 1fr}}
+.hero>*{animation:fade-up 700ms var(--ease-spring) both}
+.hero>:nth-child(1){animation-delay:.1s}
+.hero>:nth-child(2){animation-delay:.25s}
+@keyframes fade-up{from{opacity:0;transform:translateY(24px) blur(4px)}}
+
+/* Double-Bezel CTA Card */
+.doppel{
+  padding:2px;border-radius:var(--radius-xl);
+  background:linear-gradient(135deg,var(--border),var(--border-light),var(--border));
+  box-shadow:0 8px 40px rgba(26,122,107,0.12)
+}
+.doppel__inner{
+  background:var(--surface);border-radius:calc(var(--radius-xl) - 2px);
+  padding:2.5rem;height:100%;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,0.15)
+}
+@media(max-width:768px){.doppel__inner{padding:1.75rem}}
+
+/* Teal hero variant - solid color block */
+.hero-main{background:var(--teal);border-radius:var(--radius-lg);padding:2.5rem;position:relative;overflow:hidden}
+@media(max-width:768px){.hero-main{padding:2rem 1.5rem}}
+.hero-main::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 30% 20%,rgba(255,255,255,0.12),transparent);
+  pointer-events:none
+}
+.hero-main h1{
+  font-family:var(--font-display);font-size:clamp(2rem,4vw,2.75rem);font-weight:700;
+  letter-spacing:-.02em;line-height:1.1;color:#fff;position:relative
+}
+.hero-main .hero-sub{
+  margin-top:.75rem;font-size:1.0625rem;color:rgba(255,255,255,0.8);
+  max-width:40ch;line-height:1.5;position:relative
+}
+
+/* Nested CTA with Button-in-Button */
+.cta-group{margin-top:1.75rem;display:flex;flex-wrap:wrap;gap:.75rem;position:relative}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:.6rem;
+  padding:.8rem 1.5rem .8rem 1.75rem;min-height:52px;
+  background:#fff;color:var(--teal);border:none;border-radius:999px;
+  font-family:var(--font-body);font-weight:600;font-size:1rem;letter-spacing:.02em;
+  cursor:pointer;text-decoration:none;
+  transition:transform 300ms var(--ease-spring),box-shadow 300ms var(--ease-spring)
+}
+.btn-primary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,0.15)}
+.btn-primary:active{transform:scale(.98)}
+
+.btn-icon-wrap{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(26,122,107,0.1);color:var(--teal);
+  display:flex;align-items:center;justify-content:center;flex:none;
+  transition:transform 300ms var(--ease-spring),background 300ms var(--ease-spring)
+}
+.btn-primary:hover .btn-icon-wrap{transform:translateX(2px) scale(1.1);background:rgba(26,122,107,0.18)}
+.btn-icon-wrap svg{width:14px;height:14px}
+
+.lang-strip{
+  display:flex;gap:.35rem;margin-top:1.25rem;position:relative
+}
+.lang-strip button{
+  padding:.3rem .85rem;border:1px solid rgba(255,255,255,0.2);border-radius:999px;
+  background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);
+  font-family:var(--font-body);font-size:.8rem;font-weight:500;letter-spacing:.02em;
+  cursor:pointer;transition:background 150ms var(--ease-out),color 150ms var(--ease-out);
+  min-height:44px
+}
+.lang-strip button:hover{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9)}
+.lang-strip button[aria-pressed="true"]{background:rgba(255,255,255,0.2);color:#fff}
+.lang-strip button[aria-pressed="true"]:hover{background:rgba(255,255,255,0.25)}
+.lang-strip .beta-tag{
+  font-family:var(--font-mono);font-size:.5rem;letter-spacing:.06em;
+  background:var(--amber);color:#1A1810;border-radius:99px;padding:.1rem .35rem;
+  margin-left:.2rem
+}
+
+/* ---------- Stats Side (Double-Bezel) ---------- */
+.stats-panel{display:flex;flex-direction:column;gap:1rem}
+
+/* Level badge */
+.level-badge{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.5rem .75rem;background:var(--surface-elevated);border-radius:999px;
+  border:1px solid var(--border-light)
+}
+.level-badge__icon{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--teal);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:.7rem;font-weight:600
+}
+.level-badge__text{font-size:.8125rem;font-weight:500;color:var(--fg)}
+.level-badge__xp{font-family:var(--font-mono);font-size:.675rem;color:var(--muted);margin-left:auto}
+
+/* Progress Ring */
+.ring-card{
+  display:flex;align-items:center;gap:1.25rem;
+  padding:1.25rem;background:var(--surface);border-radius:var(--radius-md);
+  border:1px solid var(--border-light)
+}
+.ring-wrap{position:relative;width:72px;height:72px;flex:none}
+.ring-wrap svg{transform:rotate(-90deg);display:block}
+.ring-bg{stroke:var(--border-light)}
+.ring-fill{stroke:var(--teal);stroke-linecap:round;stroke-dasharray:188.5;stroke-dashoffset:188.5;transition:stroke-dashoffset 1.2s var(--ease-spring)}
+.ring-fill.anim{stroke-dashoffset:47.1}
+.ring-num{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:700;font-size:1.1rem;letter-spacing:-.01em;color:var(--fg)
+}
+.ring-copy{flex:1;min-width:0}
+.ring-copy__title{font-size:.9rem;font-weight:600;color:var(--fg)}
+.ring-copy__sub{font-size:.75rem;color:var(--muted);margin-top:.1rem}
+
+/* Mini stats row */
+.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.mini-stat{
+  text-align:center;padding:.6rem .4rem;
+  background:var(--surface);border-radius:var(--radius-sm);
+  border:1px solid var(--border-light)
+}
+.mini-stat__num{
+  font-family:var(--font-display);font-weight:700;font-size:1.25rem;
+  letter-spacing:-.01em;color:var(--fg)
+}
+.mini-stat__num .count-up{display:inline}
+.mini-stat__label{font-size:.65rem;color:var(--muted);letter-spacing:.02em;margin-top:.15rem}
+
+/* ---------- Session Cards Grid ---------- */
+.section-header{
+  display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1rem
+}
+.section-header h2{
+  font-family:var(--font-display);font-size:1.5rem;font-weight:600;
+  letter-spacing:-.01em;color:var(--fg)
+}
+.section-header .mock-note{
+  font-family:var(--font-mono);font-size:.625rem;letter-spacing:.04em;color:var(--muted)
+}
+.session-grid{display:grid;gap:1rem}
+@media(min-width:600px){.session-grid{grid-template-columns:1fr 1fr}}
+
+/* Session Card - Double-Bezel */
+.session-card{animation:fade-up 700ms var(--ease-spring) both}
+.session-card:nth-child(1){animation-delay:.3s}
+.session-card:nth-child(2){animation-delay:.38s}
+.session-card:nth-child(3){animation-delay:.46s}
+.session-card:nth-child(4){animation-delay:.54s}
+.session-card a{
+  display:flex;flex-direction:column;gap:.5rem;
+  padding:1.25rem;background:var(--surface);border-radius:var(--radius-md);
+  border:1px solid var(--border-light);
+  text-decoration:none;color:inherit;
+  transition:border-color 200ms var(--ease-out),box-shadow 200ms var(--ease-out);
+  position:relative
+}
+.session-card a:hover{
+  border-color:var(--border);box-shadow:0 4px 20px rgba(26,122,107,0.08)
+}
+.s-card__head{display:flex;align-items:center;gap:.5rem}
+.score-dot{width:8px;height:8px;border-radius:50%;flex:none}
+.score-dot.hi{background:#2E8A5A}
+.score-dot.mid{background:#C4A040}
+.score-dot.lo{background:#C84A5A}
+.s-card__sent{
+  font-size:.9375rem;font-weight:500;color:var(--fg);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.s-card__sent.lang-zh{font-family:var(--font-body),'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif}
+.s-card__meta{font-size:.7rem;color:var(--muted)}
+
+/* Score Progress Bar */
+.s-card__score-row{display:flex;align-items:center;gap:.6rem}
+.s-card__bar{flex:1;height:5px;background:var(--border-light);border-radius:99px;overflow:hidden}
+.s-card__fill{height:100%;border-radius:99px;width:0;transition:width 1s var(--ease-spring)}
+.s-card__fill.hi{background:#2E8A5A}
+.s-card__fill.mid{background:#C4A040}
+.s-card__fill.lo{background:#C84A5A}
+.s-card__fill.anim{width:var(--fill)}
+.s-card__score{
+  font-family:var(--font-mono);font-size:.75rem;font-weight:600;color:var(--muted);flex:none;
+  width:2rem;text-align:right
+}
+.s-card__arrow{
+  position:absolute;right:1rem;top:50%;transform:translateY(-50%);
+  color:var(--muted);opacity:.4
+}
+.session-card a:hover .s-card__arrow{opacity:.8}
+
+/* ---------- Achievement Strip ---------- */
+.achievement{
+  background:var(--surface);border-radius:var(--radius-md);
+  border:1px solid var(--border-light);padding:1.25rem 1.5rem;
+  display:flex;flex-direction:column;gap:.6rem
+}
+.achieve__head{display:flex;align-items:center;gap:.6rem}
+.achieve__icon{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--amber);color:#1A1810;
+  display:flex;align-items:center;justify-content:center;flex:none
+}
+.achieve__title{font-size:.875rem;font-weight:600;color:var(--fg)}
+.achieve__sub{font-size:.75rem;color:var(--muted)}
+.achieve__bar{height:4px;background:var(--border-light);border-radius:99px;overflow:hidden}
+.achieve__fill{height:100%;border-radius:99px;background:var(--amber);width:0;transition:width 1.2s var(--ease-spring)}
+.achieve__fill.anim{width:75%}
+.achieve__label{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.04em;color:var(--muted)}
+
+/* ---------- Sound Wave SVG Decoration ---------- */
+.wave-deco{
+  position:fixed;bottom:0;left:0;right:0;height:200px;
+  pointer-events:none;z-index:0;overflow:hidden;
+  opacity:.06;mix-blend-mode:screen
+}
+@media(max-width:600px){.wave-deco{height:100px;opacity:.04}}
+.wave-deco svg{width:100%;height:100%}
+[data-theme="dark"] .wave-deco{opacity:.04}
+@media(max-width:600px){[data-theme="dark"] .wave-deco{opacity:.03}}
+
+/* ---------- Mock Credits ---------- */
+.mock-credits{padding:1.5rem 0 0;text-align:center}
+.mock-credits .mock-note{
+  font-family:var(--font-mono);font-size:.65rem;letter-spacing:.04em;color:var(--muted)
+}
+
+/* ---------- Confetti Overlay ---------- */
+.confetti-container{
+  position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden
+}
+.confetti-piece{
+  position:absolute;width:8px;height:8px;border-radius:2px;
+  animation:confetti-fall 2.5s var(--ease-spring) both
+}
+@keyframes confetti-fall{
+  0%{opacity:1;transform:translateY(-20px) rotate(0deg) scale(1)}
+  100%{opacity:0;transform:translateY(100vh) rotate(720deg) scale(.3)}
+}
+
+/* ---------- Reduced Motion ---------- */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .ring-fill{stroke-dashoffset:47.1!important}
+  .s-card__fill{width:var(--fill)!important}
+  .achieve__fill{width:75%!important}
+  .streak-badge{animation:none!important}
+}
+</style>
+</head>
+<body>
+<a class="skip-nav" href="#main">Saltar al contenido</a>
+
+<div class="topbar-wrap">
+  <header class="topbar" data-od-id="topbar">
+    <a class="wordmark" href="index.html">ECHO</a>
+    <div class="topbar-right">
+      <div class="streak-badge" data-od-id="streak-badge" aria-label="Racha de 12 d&iacute;as">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8 6 6 10 6 14a6 6 0 0 0 12 0c0-4-2-8-6-12zM8 14c0-2 .5-4 2-6l2 2-1 3h2l-1 4h3c0 2-1 4-3 4s-4-2-4-7z"/></svg>
+        <span>12</span>
+      </div>
+      <button class="theme-toggle" data-theme-btn aria-label="Cambiar tema" data-od-id="theme-toggle">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+</div>
+
+<main id="main">
+<div class="page">
+
+  <!-- Hero: Asymmetrical Bento -->
+  <section class="hero" data-od-id="hero">
+
+    <!-- CTA Block (teal solid) -->
+    <div class="hero-main">
+      <h1 id="greeting-title">Buenas tardes.</h1>
+      <p class="hero-sub">Tu o&iacute;do ya sabe lo que toca. Dos minutos y lo tienes.</p>
+      <div class="cta-group">
+        <a class="btn-primary" id="practice-cta" data-od-id="practice-cta" href="echo-redesign-practice-v2.html">
+          <span id="practice-cta-label">Practicar ahora</span>
+          <span class="btn-icon-wrap" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+        </a>
+      </div>
+      <div class="lang-strip" role="group" aria-label="Idioma de pr&aacute;ctica" data-od-id="lang-strip">
+        <button type="button" data-lang="en" aria-pressed="true">English</button>
+        <button type="button" data-lang="es" aria-pressed="false">Espa&ntilde;ol</button>
+        <button type="button" data-lang="zh" aria-pressed="false">中文 <span class="beta-tag">BETA</span></button>
+      </div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="stats-panel">
+
+      <div class="level-badge" data-od-id="level-badge">
+        <span class="level-badge__icon">4</span>
+        <span class="level-badge__text">Practicante</span>
+        <span class="level-badge__xp">1,240 XP</span>
+      </div>
+
+      <div class="doppel">
+        <div class="doppel__inner">
+          <div class="ring-card">
+            <div class="ring-wrap">
+              <svg width="72" height="72" viewBox="0 0 72 72">
+                <circle class="ring-bg" cx="36" cy="36" r="30" fill="none" stroke-width="4"/>
+                <circle class="ring-fill" id="progress-ring" cx="36" cy="36" r="30" fill="none" stroke-width="4"/>
+              </svg>
+              <span class="ring-num" id="ring-num">75%</span>
+            </div>
+            <div class="ring-copy">
+              <div class="ring-copy__title">Meta diaria</div>
+              <div class="ring-copy__sub">3 de 4 sesiones completadas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mini-stats">
+        <div class="mini-stat" data-od-id="stat-streak">
+          <div class="mini-stat__num"><span class="count-up" data-target="12">0</span></div>
+          <div class="mini-stat__label">racha</div>
+        </div>
+        <div class="mini-stat" data-od-id="stat-accuracy">
+          <div class="mini-stat__num"><span class="count-up" data-target="78">0</span>%</div>
+          <div class="mini-stat__label">precisi&oacute;n</div>
+        </div>
+        <div class="mini-stat" data-od-id="stat-words">
+          <div class="mini-stat__num"><span class="count-up" data-target="143">0</span></div>
+          <div class="mini-stat__label">palabras</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Session Grid -->
+  <section data-od-id="recent-sessions" aria-labelledby="recents-label">
+    <div class="section-header">
+      <h2 id="recents-label">Sesiones recientes</h2>
+      <span class="mock-note">DATOS SIMULADOS</span>
+    </div>
+    <div class="session-grid">
+      <div class="session-card" data-od-id="session-row-1">
+        <a href="echo-redesign-practice-v2.html?lang=en">
+          <div class="s-card__head">
+            <span class="score-dot mid" aria-hidden="true"></span>
+            <span class="s-card__sent">I would like a cup of coffee, please.</span>
+          </div>
+          <span class="s-card__meta">Ingl&eacute;s &middot; hoy, 09:41</span>
+          <div class="s-card__score-row">
+            <div class="s-card__bar"><div class="s-card__fill mid" style="--fill:74%" data-score="74"></div></div>
+            <span class="s-card__score">74</span>
+          </div>
+          <svg class="s-card__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+      <div class="session-card" data-od-id="session-row-2">
+        <a href="echo-redesign-practice-v2.html?lang=es">
+          <div class="s-card__head">
+            <span class="score-dot hi" aria-hidden="true"></span>
+            <span class="s-card__sent">&iquest;D&oacute;nde est&aacute; la estaci&oacute;n de tren?</span>
+          </div>
+          <span class="s-card__meta">Espa&ntilde;ol &middot; ayer, 18:02</span>
+          <div class="s-card__score-row">
+            <div class="s-card__bar"><div class="s-card__fill hi" style="--fill:88%" data-score="88"></div></div>
+            <span class="s-card__score">88</span>
+          </div>
+          <svg class="s-card__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+      <div class="session-card" data-od-id="session-row-3">
+        <a href="echo-redesign-practice-v2.html?lang=zh">
+          <div class="s-card__head">
+            <span class="score-dot mid" aria-hidden="true"></span>
+            <span class="s-card__sent lang-zh">&#x4F60;&#x597D;&#x5417;</span>
+          </div>
+          <span class="s-card__meta">Mandar&iacute;n &middot; ayer, 12:20 &middot; transcripci&oacute;n + contorno</span>
+          <div class="s-card__score-row">
+            <div class="s-card__bar"><div class="s-card__fill mid" style="--fill:82%" data-score="82"></div></div>
+            <span class="s-card__score">82</span>
+          </div>
+          <svg class="s-card__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+      <div class="session-card" data-od-id="session-row-4">
+        <a href="echo-redesign-practice-v2.html?lang=en">
+          <div class="s-card__head">
+            <span class="score-dot lo" aria-hidden="true"></span>
+            <span class="s-card__sent">She sells seashells by the seashore.</span>
+          </div>
+          <span class="s-card__meta">Ingl&eacute;s &middot; 17 jul, 08:15</span>
+          <div class="s-card__score-row">
+            <div class="s-card__bar"><div class="s-card__fill lo" style="--fill:61%" data-score="61"></div></div>
+            <span class="s-card__score">61</span>
+          </div>
+          <svg class="s-card__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Achievement Strip -->
+  <div class="achievement" data-od-id="achievement-bar">
+    <div class="achieve__head">
+      <span class="achieve__icon" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </span>
+      <span class="achieve__title">Pr&oacute;ximo logro: 5 d&iacute;as seguidos</span>
+    </div>
+    <div class="achieve__bar"><div class="achieve__fill" id="achieve-fill"></div></div>
+    <span class="achieve__label">3 / 5 d&iacute;as &middot; 60% completado</span>
+  </div>
+
+  <footer class="mock-credits" data-od-id="home-credits">
+    <span class="mock-note">Datos simulados &middot; la API real expone racha, precisi&oacute;n, palabras y sesiones</span>
+  </footer>
+
+</div>
+</main>
+
+<!-- Sound Wave Decoration -->
+<div class="wave-deco" aria-hidden="true">
+  <svg viewBox="0 0 1440 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 100 C120 60 240 140 360 100 S600 60 720 100 S960 140 1080 100 S1320 60 1440 100" stroke="var(--teal)" stroke-width="2" opacity=".6"/>
+    <path d="M0 120 C120 80 240 160 360 120 S600 80 720 120 S960 160 1080 120 S1320 80 1440 120" stroke="var(--teal)" stroke-width="1.5" opacity=".4"/>
+    <path d="M0 140 C120 100 240 180 360 140 S600 100 720 140 S960 180 1080 140 S1320 100 1440 140" stroke="var(--teal)" stroke-width="1" opacity=".25"/>
+  </svg>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var qs = function (s, p) { return (p || document).querySelector(s); };
+
+  /* ---------- Theme (toggle, not 3-way) ---------- */
+  var themeBtn = qs('[data-theme-btn]');
+  var savedTheme = 'system';
+  try { savedTheme = localStorage.getItem('echo-theme') || 'system'; } catch (e) {}
+  function applyTheme(choice) {
+    if (choice === 'system') { document.documentElement.removeAttribute('data-theme'); }
+    else { document.documentElement.setAttribute('data-theme', choice); }
+    try { localStorage.setItem('echo-theme', choice); } catch (e) {}
+  }
+  applyTheme(savedTheme);
+  themeBtn.addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme') || 'system';
+    var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var isLight = cur === 'light' || (cur === 'system' && !isDark);
+    applyTheme(isLight ? 'dark' : 'light');
+  });
+
+  /* ---------- Greeting ---------- */
+  var h = new Date().getHours();
+  $('greeting-title').textContent = h < 7 ? 'Buenas noches.' : h < 13 ? 'Buenos d\u00EDas.' : h < 21 ? 'Buenas tardes.' : 'Buenas noches.';
+
+  /* ---------- Language ---------- */
+  var COPY = {
+    en: { cta: 'Practicar ahora' },
+    es: { cta: 'Practicar ahora' },
+    zh: { cta: 'Practicar ahora' }
+  };
+  var langBtns = document.querySelectorAll('[data-lang]');
+  function applyLang(code) {
+    if (!COPY[code]) code = 'en';
+    langBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === code)); });
+    $('practice-cta-label').textContent = COPY[code].cta;
+    $('practice-cta').setAttribute('href', 'echo-redesign-practice-v2.html?lang=' + code);
+    try { localStorage.setItem('echo-lang', code); } catch (e) {}
+  }
+  langBtns.forEach(function (b) { b.addEventListener('click', function () { applyLang(b.dataset.lang); }); });
+  var savedLang = 'en';
+  try { savedLang = localStorage.getItem('echo-lang') || 'en'; } catch (e) {}
+  applyLang(savedLang);
+
+  /* ---------- Count-up Animation ---------- */
+  var counters = document.querySelectorAll('.count-up');
+  function animateCount(el) {
+    var target = parseInt(el.getAttribute('data-target'), 10);
+    if (isNaN(target)) return;
+    var duration = 800;
+    var start = performance.now();
+    function tick(now) {
+      var p = Math.min((now - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(eased * target);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  counters.forEach(animateCount);
+
+  /* ---------- Progress Ring ---------- */
+  setTimeout(function () {
+    var ring = $('progress-ring');
+    if (ring) ring.classList.add('anim');
+  }, 400);
+
+  /* ---------- Score Bars ---------- */
+  setTimeout(function () {
+    document.querySelectorAll('.s-card__fill').forEach(function (el) {
+      el.classList.add('anim');
+    });
+  }, 600);
+
+  /* ---------- Achievement Bar ---------- */
+  setTimeout(function () {
+    var af = $('achieve-fill');
+    if (af) af.classList.add('anim');
+  }, 800);
+
+  /* ---------- Confetti (demo: scores >= 80) ---------- */
+  var highScores = document.querySelectorAll('.s-card__fill.hi');
+  if (highScores.length > 0) {
+    setTimeout(function () {
+      var container = document.createElement('div');
+      container.className = 'confetti-container';
+      container.setAttribute('aria-hidden', 'true');
+      var colors = ['#E8B84A','#1A7A6B','#2E8A5A','#D4758C','#3B6FA0'];
+      for (var i = 0; i < 40; i++) {
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = Math.random() * 1.5 + 's';
+        piece.style.width = (4 + Math.random() * 6) + 'px';
+        piece.style.height = (4 + Math.random() * 6) + 'px';
+        container.appendChild(piece);
+      }
+      document.body.appendChild(container);
+      setTimeout(function () { container.remove(); }, 4000);
+    }, 1200);
+  }
+})();
+</script>
+</body>
+</html>
