@@ -89,7 +89,7 @@ def _score_cjk(expected: str, actual: str) -> Dict:
     act_joined = "".join(act_chars)
     overall_sim = ratio(exp_joined, act_joined) if exp_joined and act_joined else 0.0
     overall_score = int(overall_sim * 100)
-    grade = EchoScorer._calculate_grade(None, overall_sim)
+    grade = EchoScorer._calculate_grade(overall_sim)
 
     return {
         "overall_score": overall_score,
