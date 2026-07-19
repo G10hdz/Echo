@@ -19,6 +19,7 @@ from models import (
 )
 from scoring import EchoScorer
 from database import DatabaseManager
+from util import tts_cache_name
 
 # ─── Optional AI services with graceful degradation ───
 WHISPER_AVAILABLE = False
@@ -206,9 +207,9 @@ async def generate_tts(request: TTSRequest):
         )
 
     try:
-        text_hash = str(abs(hash(request.text)))
         lang = request.language or "en"
-        audio_filename = f"tts_{text_hash}.wav"
+        provider = "el" if ELEVENLABS_AVAILABLE else "kk"
+        audio_filename = tts_cache_name(request.text, lang, provider)
         audio_path = AUDIO_DIR / audio_filename
 
         if not audio_path.exists():
@@ -352,8 +353,8 @@ async def analyze_pronunciation(
         audio_filename = None
         if ELEVENLABS_AVAILABLE or KOKORO_AVAILABLE:
             try:
-                text_hash = str(abs(hash(expected_text)))
-                audio_filename = f"tts_{text_hash}.wav"
+                provider = "el" if ELEVENLABS_AVAILABLE else "kk"
+                audio_filename = tts_cache_name(expected_text, language, provider)
                 audio_path = AUDIO_DIR / audio_filename
                 if not audio_path.exists():
                     if ELEVENLABS_AVAILABLE:
