@@ -43,42 +43,6 @@ class WhisperService:
         except:
             return False
 
-    async def transcribe(self, audio_path: str) -> Dict:
-        """
-        Transcribe audio file
-        Returns: {"text": str, "words": [{"word": str, "start": float, "end": float}], "language": str}
-        """
-        if not self.model:
-            raise RuntimeError("Whisper model not loaded")
-
-        segments, info = self.model.transcribe(
-            audio_path,
-            beam_size=5,
-            word_timestamps=True,
-            language="en",  # Default to English, can be auto-detected
-            vad_filter=True  # Filter silence
-        )
-
-        text_parts = []
-        words = []
-
-        for segment in segments:
-            text_parts.append(segment.text)
-
-            for word in segment.words or []:
-                words.append({
-                    "word": word.word,
-                    "start": word.start,
-                    "end": word.end,
-                    "confidence": word.probability
-                })
-
-        return {
-            "text": " ".join(text_parts).strip(),
-            "words": words,
-            "language": info.language
-        }
-
     async def transcribe_with_language(
         self,
         audio_path: str,

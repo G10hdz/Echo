@@ -149,7 +149,8 @@ async def health_check():
 # ─── Transcribe ───
 @app.post("/api/transcribe")
 async def transcribe_audio(
-    audio: UploadFile = File(..., description="Audio file (any format ffmpeg can decode)")
+    audio: UploadFile = File(..., description="Audio file (any format ffmpeg can decode)"),
+    language: str = Form(default="auto")
 ):
     """Transcribe audio using Whisper STT (if available)."""
     if not WHISPER_AVAILABLE:
@@ -164,7 +165,7 @@ async def transcribe_audio(
         raw_path.write_bytes(content)
 
         wav_path = convert_audio_to_wav(str(raw_path))
-        result = await whisper_service.transcribe(wav_path)
+        result = await whisper_service.transcribe_with_language(wav_path, language)
 
         return {
             "text": result["text"],
@@ -334,7 +335,7 @@ async def analyze_pronunciation(
 
         # 2. Transcribe
         if WHISPER_AVAILABLE and whisper_service:
-            result = await whisper_service.transcribe(wav_path)
+            result = await whisper_service.transcribe_with_language(wav_path, language)
             transcription_text = result.get("text", "")
             words = result.get("words", [])
             detected_language = result.get("language", language)
