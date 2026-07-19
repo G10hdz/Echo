@@ -1,5 +1,6 @@
 """SQLite database manager for Echo"""
 
+import os
 import sqlite3
 from pathlib import Path
 from datetime import datetime, date
@@ -9,7 +10,7 @@ from contextlib import contextmanager
 from models import PracticeSession
 
 
-DATABASE_PATH = Path("echo.db")
+DATABASE_PATH = Path(os.environ.get("ECHO_DB_PATH", "echo.db"))
 
 
 class DatabaseManager:

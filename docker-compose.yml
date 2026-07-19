@@ -6,12 +6,13 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8000:8080"
     env_file:
       - backend/.env
     environment:
       - WHISPER_MODEL_SIZE=base
       - ECHO_CORS_ORIGINS=http://localhost:5173
+      - ECHO_DB_PATH=/app/data/echo.db
     volumes:
       - echo_db_data:/app/data
     restart: unless-stopped
