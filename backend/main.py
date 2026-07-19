@@ -64,6 +64,8 @@ AUDIO_DIR.mkdir(exist_ok=True)
 
 FFMPEG_PATH = "ffmpeg"
 
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # ~60s of webm audio
+
 # ─── Core services (always available) ───
 scorer = EchoScorer()
 db_manager = DatabaseManager()
@@ -162,6 +164,8 @@ async def transcribe_audio(
     raw_path = AUDIO_DIR / f"raw_{uuid.uuid4().hex[:8]}{Path(audio.filename or 'audio').suffix or '.webm'}"
     try:
         content = await audio.read()
+        if len(content) > MAX_UPLOAD_BYTES:
+            raise HTTPException(status_code=413, detail="Audio file too large (max 10MB)")
         raw_path.write_bytes(content)
 
         wav_path = convert_audio_to_wav(str(raw_path))
@@ -321,6 +325,8 @@ async def analyze_pronunciation(
 
     try:
         content = await audio.read()
+        if len(content) > MAX_UPLOAD_BYTES:
+            raise HTTPException(status_code=413, detail="Audio file too large (max 10MB)")
         raw_path.write_bytes(content)
 
         wav_path = convert_audio_to_wav(str(raw_path))
