@@ -89,7 +89,8 @@ class KokoroService:
 
         # Save audio
         import soundfile as sf
-        sf.write(output_path, result.audio, result.sr)
+        # kokoro >=0.9.4 Result has no .sr; Kokoro-82M output is fixed 24 kHz
+        sf.write(output_path, result.audio, getattr(result, "sr", 24000))
 
         print(f"✅ Audio saved to {output_path}")
         return output_path
