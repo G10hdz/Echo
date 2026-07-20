@@ -55,7 +55,7 @@ gcloud run deploy "$SERVICE_NAME" \
   --max-instances=3 \
   --port=8080 \
   --allow-unauthenticated \
-  --set-env-vars="WHISPER_MODEL_SIZE=base,ECHO_CORS_ORIGINS=https://echo-pronunciation.netlify.app,http://localhost:5173" \
+  --set-env-vars="^||^WHISPER_MODEL_SIZE=base||ECHO_CORS_ORIGINS=https://echo-pronunciation.netlify.app,http://localhost:5173" \
   --set-secrets="ELEVENLABS_API_KEY=echo-elevenlabs-key:latest" \
   --project="$PROJECT_ID"
 
