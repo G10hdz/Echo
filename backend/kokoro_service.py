@@ -17,7 +17,6 @@ class KokoroService:
     }
 
     def __init__(self):
-        self.pipeline = None
         self.pipelines: dict = {}
         self._init_kokoro()
 
@@ -37,26 +36,27 @@ class KokoroService:
 
             from kokoro import KPipeline
 
-            # Load default pipeline (English)
-            self.pipeline_en = KPipeline(lang_code='a', repo_id='hexgrad/Kokoro-82M')
-            self.pipeline_es = KPipeline(lang_code='e', repo_id='hexgrad/Kokoro-82M')
-            self.pipeline_zh = KPipeline(lang_code='z', repo_id='hexgrad/Kokoro-82M')
+            # Build one pipeline per language. A missing extra (e.g. misaki[zh])
+            # must not take down the languages that DID load — English is the
+            # primary demo language and has to survive a broken zh install.
+            lang_codes = {"en": "a", "es": "e", "zh": "z"}
+            self.pipelines = {}
+            for lang, code in lang_codes.items():
+                try:
+                    self.pipelines[lang] = KPipeline(lang_code=code, repo_id='hexgrad/Kokoro-82M')
+                except Exception as e:
+                    print(f"⚠️  Kokoro {lang} pipeline unavailable: {e}")
 
-            self.pipelines = {
-                "en": self.pipeline_en,
-                "es": self.pipeline_es,
-                "zh": self.pipeline_zh
-            }
-
-            print("✅ Kokoro TTS initialized")
+            if self.pipelines:
+                print(f"✅ Kokoro TTS initialized ({', '.join(self.pipelines)})")
+            else:
+                print("⚠️  Kokoro TTS: no pipelines available")
 
         except ImportError as e:
             print(f"⚠️  Kokoro not available: {e}")
-            self.pipeline = None
             self.pipelines = {}
         except Exception as e:
             print(f"⚠️  Kokoro init error: {e}")
-            self.pipeline = None
             self.pipelines = {}
 
     async def generate(
@@ -73,7 +73,7 @@ class KokoroService:
         if not self.pipelines:
             raise RuntimeError("Kokoro pipelines not available")
 
-        pipeline = self.pipelines.get(language, self.pipelines["en"])
+        pipeline = self.pipelines.get(language) or next(iter(self.pipelines.values()))
         voice_name = voice or self.VOICES.get(language, "af_heart")
 
         print(f"🔊 Generating TTS: '{text[:50]}...' (voice={voice_name})")
