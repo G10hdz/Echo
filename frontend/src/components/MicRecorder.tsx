@@ -8,7 +8,7 @@ interface MicRecorderProps {
   audioBlob: Blob | null;
   waveformRef: React.RefObject<HTMLCanvasElement | null>;
   analyserRef: React.RefObject<AnalyserNode | null>;
-  onStartRecording: () => Promise<void>;
+  onStartRecording: () => Promise<unknown>;
   onStopRecording: () => void;
   onResetRecording: () => void;
   onPlayback: () => void;
@@ -184,15 +184,15 @@ export function MicRecorder({
                 ? 'var(--surface-container)'
                 : 'var(--accent)',
             boxShadow: isRecording
-              ? '0 0 40px rgba(196, 93, 62, 0.35), 0 4px 16px rgba(0,0,0,0.12)'
+              ? '0 0 40px rgba(200,74,90,0.35), 0 4px 16px rgba(0,0,0,0.12)'
               : audioBlob
                 ? 'inset 0 2px 4px rgba(0,0,0,0.06)'
-                : '0 8px 32px rgba(196, 93, 62, 0.28), 0 2px 6px rgba(0,0,0,0.08)',
+                : '0 8px 32px rgba(232,184,74,0.28), 0 2px 6px rgba(0,0,0,0.08)',
             cursor: audioBlob ? 'default' : 'pointer',
           }}
           whileHover={
             !audioBlob && !isRecording
-              ? { scale: 1.08, boxShadow: '0 12px 40px rgba(196, 93, 62, 0.38)' }
+              ? { scale: 1.08, boxShadow: '0 12px 40px rgba(232,184,74,0.38)' }
               : {}
           }
           whileTap={!audioBlob ? { scale: 0.92 } : {}}
@@ -253,7 +253,7 @@ export function MicRecorder({
                 exit={{ scale: 0, rotate: -45 }}
                 transition={{ duration: 0.22, type: 'spring' as const, stiffness: 450, damping: 22 }}
               >
-                <Mic size={28} color="white" strokeWidth={2} />
+                <Mic size={28} color="var(--on-accent)" strokeWidth={2} />
               </motion.div>
             )}
           </AnimatePresence>

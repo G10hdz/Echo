@@ -8,6 +8,14 @@ interface ResultsState {
   sentence: string;
 }
 
+const SPRING = [0.32, 0.72, 0, 1] as const;
+
+function scoreColor(pct: number): string {
+  if (pct >= 80) return 'var(--score-hi)';
+  if (pct >= 60) return 'var(--score-mid)';
+  return 'var(--score-lo)';
+}
+
 export function ResultsPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -16,12 +24,11 @@ export function ResultsPage() {
   if (!state?.score) {
     return (
       <div className="max-w-2xl mx-auto px-4 md:px-8 py-12 text-center">
-        <p style={{ color: 'var(--on-surface-variant)' }}>No session data. Start a practice session first.</p>
-        <button
-          onClick={() => navigate('/practice')}
-          className="mt-4 btn-primary"
-        >
-          Go to Practice
+        <p style={{ color: 'var(--muted)' }}>
+          No hay datos de sesión. Empieza una práctica primero.
+        </p>
+        <button type="button" onClick={() => navigate('/practice')} className="mt-4 btn-primary">
+          Ir a practicar
         </button>
       </div>
     );
@@ -38,115 +45,89 @@ export function ResultsPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 md:px-8 py-8 md:py-12">
       {/* Terminal label */}
-      <motion.p
-        className="text-xs tracking-[0.2em] uppercase mb-8 opacity-60"
-        style={{ fontFamily: 'var(--font-mono)', color: 'var(--on-surface-variant)' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.6 }}
-      >
-        {`> SESSION COMPLETE // ${today}`}
-      </motion.p>
+      <p className="terminal-label mb-8">{`SESIÓN COMPLETADA // ${today}`}</p>
 
-      {/* Circular score ring */}
+      {/* Ring de score con color semántico */}
       <motion.div
         className="flex justify-center mb-8"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, type: 'spring' as const }}
+        transition={{ duration: 0.6, ease: SPRING }}
       >
         <div className="relative w-36 h-36">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
-            {/* Track */}
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120" aria-hidden="true">
+            {/* Track visible en ambos temas */}
             <circle
               cx="60"
               cy="60"
               r="54"
               fill="none"
-              stroke="var(--ghost-border)"
+              stroke="var(--border-light)"
               strokeWidth="8"
             />
-            {/* Progress */}
             <motion.circle
               cx="60"
               cy="60"
               r="54"
               fill="none"
-              stroke="var(--primary)"
+              stroke={scoreColor(scorePercent)}
               strokeWidth="8"
               strokeLinecap="round"
               strokeDasharray={circumference}
               initial={{ strokeDashoffset: circumference }}
               animate={{ strokeDashoffset: circumference - strokeDash }}
-              transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
-              style={{ filter: 'drop-shadow(0 0 8px var(--lavender-glow))' }}
+              transition={{ duration: 1.2, delay: 0.3, ease: SPRING }}
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span
               className="text-3xl font-bold"
-              style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface)' }}
+              style={{ fontFamily: 'var(--font-display)', color: 'var(--fg)' }}
             >
               {scorePercent}%
             </span>
-            <span className="text-xs uppercase" style={{ color: 'var(--on-surface-variant)' }}>
+            <span className="text-xs uppercase" style={{ color: 'var(--muted)' }}>
               {score.grade}
             </span>
           </div>
         </div>
       </motion.div>
 
-      {/* Stats chips */}
+      {/* Stats chips — colapsa a 1 columna en móvil */}
       <motion.div
-        className="grid grid-cols-3 gap-3 mb-8"
+        className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.4, ease: SPRING }}
       >
         {[
-          { label: 'Words Practiced', value: score.words.length },
-          { label: 'Correct', value: correctWords },
-          { label: 'Flagged', value: score.flagged.length },
+          { label: 'Palabras practicadas', value: score.words.length },
+          { label: 'Correctas', value: correctWords },
+          { label: 'Marcadas', value: score.flagged.length },
         ].map((stat) => (
-          <div
-            key={stat.label}
-            className="card text-center py-4"
-            style={{
-              backgroundColor: 'var(--glass-bg)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid var(--glass-border)',
-            }}
-          >
-            <p className="text-xl font-bold" style={{ color: 'var(--on-surface)' }}>
+          <div key={stat.label} className="card text-center py-4">
+            <p className="text-xl font-bold" style={{ color: 'var(--fg)' }}>
               {stat.value}
             </p>
-            <p className="text-xs mt-1" style={{ color: 'var(--on-surface-variant)' }}>
+            <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>
               {stat.label}
             </p>
           </div>
         ))}
       </motion.div>
 
-      {/* Gradient divider */}
-      <div
-        className="h-px mb-8"
-        style={{
-          background: 'linear-gradient(90deg, var(--primary), var(--accent), var(--primary))',
-          opacity: 0.3,
-        }}
-      />
-
-      {/* Phoneme breakdown */}
+      {/* Desglose por palabra */}
       <motion.div
         className="mb-8"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
+        transition={{ delay: 0.6, ease: SPRING }}
       >
         <h3
           className="text-xs uppercase tracking-widest mb-4"
-          style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface-variant)' }}
+          style={{ fontFamily: 'var(--font-display)', color: 'var(--muted)' }}
         >
-          Word Breakdown
+          Desglose por palabra
         </h3>
         <div className="flex flex-wrap gap-2">
           {score.words.map((word, i) => {
@@ -160,7 +141,7 @@ export function ResultsPage() {
             const colors = colorMap[word.status];
             return (
               <span
-                key={i}
+                key={`${word.word}-${i}`}
                 className="px-3 py-1.5 rounded text-sm font-medium"
                 style={{
                   backgroundColor: colors.bg,
@@ -175,58 +156,46 @@ export function ResultsPage() {
         </div>
       </motion.div>
 
-      {/* Sentence practiced */}
+      {/* Frase objetivo */}
       <motion.div
         className="card mb-8 p-4"
-        style={{ border: '1px solid var(--ghost-border)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
+        transition={{ delay: 0.7, ease: SPRING }}
       >
-        <p className="text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--on-surface-variant)' }}>
-          Target Sentence
+        <p className="text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--muted)' }}>
+          Frase objetivo
         </p>
-        <p className="text-base font-medium flex items-center gap-2" style={{ color: 'var(--on-surface)' }}>
-          <Play size={14} style={{ color: 'var(--primary)' }} />
+        <p className="text-base font-medium flex items-center gap-2" style={{ color: 'var(--fg)' }}>
+          <Play size={14} style={{ color: 'var(--teal)' }} aria-hidden="true" />
           {sentence}
         </p>
       </motion.div>
 
-      {/* Actions */}
+      {/* Acciones */}
       <motion.div
-        className="flex gap-3"
+        className="flex flex-col sm:flex-row gap-3"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
+        transition={{ delay: 0.8, ease: SPRING }}
       >
-        <motion.button
+        <button
+          type="button"
           onClick={() => navigate('/practice')}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
-          style={{
-            background: 'linear-gradient(135deg, var(--primary), var(--accent))',
-            color: 'white',
-            boxShadow: 'var(--shadow-md)',
-          }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          className="btn-primary flex-1"
         >
-          <RotateCcw size={16} />
-          PRACTICE AGAIN
-        </motion.button>
+          <RotateCcw size={16} aria-hidden="true" />
+          Practicar de nuevo
+        </button>
 
-        <motion.button
+        <button
+          type="button"
           onClick={() => navigate('/')}
-          className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium text-sm"
-          style={{
-            border: '1px solid var(--ghost-border)',
-            color: 'var(--on-surface-variant)',
-          }}
-          whileHover={{ scale: 1.02, backgroundColor: 'var(--surface-container-low)' }}
-          whileTap={{ scale: 0.98 }}
+          className="btn-secondary"
         >
-          <Home size={16} />
-          HOME
-        </motion.button>
+          <Home size={16} aria-hidden="true" />
+          Inicio
+        </button>
       </motion.div>
     </div>
   );

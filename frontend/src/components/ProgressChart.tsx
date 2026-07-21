@@ -7,7 +7,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { TrendingUp, Award, Target, BookOpen } from 'lucide-react';
+import { TrendingUp, Award, Target, BookOpen, LineChart as LineChartIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface ProgressChartProps {
   data: Array<{
@@ -29,7 +31,7 @@ export function ProgressChart({ data, stats }: ProgressChartProps) {
     value,
     suffix = '',
   }: {
-    icon: any;
+    icon: LucideIcon;
     label: string;
     value: number;
     suffix?: string;
@@ -39,10 +41,10 @@ export function ProgressChart({ data, stats }: ProgressChartProps) {
         <div
           className="p-2.5 rounded-lg"
           style={{
-            backgroundColor: 'var(--accent-container)',
+            backgroundColor: 'var(--primary-container)',
           }}
         >
-          <Icon size={20} style={{ color: 'var(--accent)' }} aria-hidden="true" />
+          <Icon size={20} style={{ color: 'var(--primary)' }} aria-hidden="true" />
         </div>
         <div>
           <p
@@ -73,52 +75,52 @@ export function ProgressChart({ data, stats }: ProgressChartProps) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
           icon={TrendingUp}
-          label="Average Score"
+          label="Puntuación media"
           value={Math.round(stats.avgScore)}
           suffix="%"
         />
         <StatCard
           icon={Award}
-          label="Sessions"
+          label="Sesiones"
           value={stats.totalSessions}
         />
         <StatCard
           icon={Target}
-          label="Day Streak"
+          label="Racha (días)"
           value={stats.streakDays}
         />
         <StatCard
           icon={BookOpen}
-          label="Words"
+          label="Palabras"
           value={stats.wordsPracticed}
         />
       </div>
 
-      {/* Score Progression Chart */}
+      {/* Gráfica de progresión */}
       {data.length > 0 ? (
         <div className="card">
           <h3
             className="text-xl font-semibold mb-6"
             style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface)' }}
           >
-            30-Day Progress
+            Evolución de tu puntuación
           </h3>
 
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={data}>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="var(--outline-variant)"
+                stroke="var(--border-light)"
               />
               <XAxis
                 dataKey="date"
-                stroke="var(--on-surface-variant)"
+                stroke="var(--muted)"
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis
-                stroke="var(--on-surface-variant)"
+                stroke="var(--muted)"
                 fontSize={12}
                 domain={[0, 100]}
                 tickLine={false}
@@ -127,29 +129,49 @@ export function ProgressChart({ data, stats }: ProgressChartProps) {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'var(--surface-container-lowest)',
-                  border: '1px solid var(--outline-variant)',
+                  backgroundColor: 'var(--surface)',
+                  border: '1px solid var(--border)',
                   borderRadius: 'var(--radius-md)',
                   boxShadow: 'var(--shadow-md)',
                   fontSize: '0.875rem',
+                  color: 'var(--fg)',
                 }}
               />
               <Line
                 type="monotone"
                 dataKey="score"
-                stroke="var(--accent)"
+                stroke="var(--teal)"
                 strokeWidth={2.5}
-                dot={{ fill: 'var(--accent)', r: 4, strokeWidth: 0 }}
-                activeDot={{ r: 6, fill: 'var(--accent)', strokeWidth: 2, stroke: 'var(--accent-container)' }}
+                dot={{ fill: 'var(--teal)', r: 4, strokeWidth: 0 }}
+                activeDot={{ r: 6, fill: 'var(--teal)', strokeWidth: 2, stroke: 'var(--primary-container)' }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="card text-center py-12">
-          <p style={{ color: 'var(--on-surface-variant)' }}>
-            Practice at least 2 sessions to see your progress chart.
+        <div
+          className="card text-center py-12 flex flex-col items-center"
+        >
+          <LineChartIcon
+            size={40}
+            style={{ color: 'var(--on-surface-variant)', opacity: 0.4, marginBottom: '1rem' }}
+            aria-hidden="true"
+          />
+          <h3
+            className="text-lg font-semibold mb-2"
+            style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface)' }}
+          >
+            Aún no hay datos suficientes
+          </h3>
+          <p
+            className="mb-6"
+            style={{ color: 'var(--on-surface-variant)', maxWidth: '24rem' }}
+          >
+            Completa al menos 2 sesiones de práctica para ver la evolución de tu puntuación.
           </p>
+          <Link to="/practice" className="btn-secondary">
+            Ir a practicar
+          </Link>
         </div>
       )}
     </div>

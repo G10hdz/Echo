@@ -14,12 +14,12 @@ import { AppSettings, DEFAULT_SETTINGS, LANGUAGE_LABELS, SUPPORTED_LANGUAGES } f
 import { useTheme } from '../contexts/ThemeContext';
 
 const VOICE_OPTIONS = [
-  { id: 'alloy', label: 'Alloy (Neutral)' },
-  { id: 'echo', label: 'Echo (Warm)' },
-  { id: 'fable', label: 'Fable (Narrator)' },
-  { id: 'onyx', label: 'Onyx (Deep)' },
-  { id: 'nova', label: 'Nova (Friendly)' },
-  { id: 'shimmer', label: 'Shimmer (Soft)' },
+  { id: 'alloy', label: 'Alloy (neutral)' },
+  { id: 'echo', label: 'Echo (cálida)' },
+  { id: 'fable', label: 'Fable (narradora)' },
+  { id: 'onyx', label: 'Onyx (grave)' },
+  { id: 'nova', label: 'Nova (amigable)' },
+  { id: 'shimmer', label: 'Shimmer (suave)' },
 ];
 
 interface SettingsSectionProps {
@@ -55,7 +55,7 @@ interface SettingRowProps {
 
 function SettingRow({ label, detail, children }: SettingRowProps) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-outline-variant last:border-b-0">
+    <div className="flex items-center justify-between py-3 border-b border-border-light last:border-b-0">
       <div className="flex flex-col">
         <span
           className="text-sm font-medium"
@@ -84,19 +84,21 @@ function SettingsSelect({
   onChange,
   options,
   icon: Icon,
+  ariaLabel,
 }: {
   value: string;
   onChange: (value: string) => void;
   options: SelectOption[];
   icon: React.ElementType;
+  ariaLabel: string;
 }) {
   return (
     <div className="flex items-center gap-3">
       <div
         className="p-2 rounded-lg"
-        style={{ backgroundColor: 'var(--accent-container)' }}
+        style={{ backgroundColor: 'var(--primary-container)' }}
       >
-        <Icon size={16} style={{ color: 'var(--accent)' }} aria-hidden="true" />
+        <Icon size={16} style={{ color: 'var(--primary)' }} aria-hidden="true" />
       </div>
       <select
         value={value}
@@ -107,8 +109,9 @@ function SettingsSelect({
           maxWidth: '240px',
           appearance: 'auto',
           cursor: 'pointer',
+          minHeight: 'var(--touch-target)',
         }}
-        aria-label="Select option"
+        aria-label={ariaLabel}
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -156,14 +159,14 @@ export function SettingsPage() {
           className="text-3xl font-bold mb-2"
           style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface)' }}
         >
-          Settings
+          Configuración
         </h1>
         <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.125rem' }}>
-          Customize your pronunciation practice experience
+          Personaliza tu práctica de pronunciación
         </p>
       </div>
 
-      {/* Saved indicator */}
+      {/* Indicador de guardado */}
       {saved && (
         <div
           className="toast-success mb-6 flex items-center gap-2 p-3 rounded-lg"
@@ -175,7 +178,7 @@ export function SettingsPage() {
         >
           <CheckCircle size={16} style={{ color: 'var(--score-correct)' }} aria-hidden="true" />
           <span style={{ color: 'var(--score-correct)', fontSize: '0.875rem', fontWeight: 500 }}>
-            Settings saved
+            Cambios guardados
           </span>
         </div>
       )}
@@ -188,14 +191,14 @@ export function SettingsPage() {
           setTimeout(() => setSaved(false), 1500);
         }}
       >
-        {/* Language Settings */}
+        {/* Idioma y nivel */}
         <SettingsSection
-          title="Language & Level"
-          description="Choose the language you want to practice and your proficiency level."
+          title="Idioma y nivel"
+          description="Elige el idioma que quieres practicar y tu nivel de competencia."
         >
           <SettingRow
-            label="Practice Language"
-            detail="Sentences will be loaded in this language"
+            label="Idioma de práctica"
+            detail="Las frases se cargarán en este idioma"
           >
             <SettingsSelect
               value={settings.language}
@@ -205,68 +208,70 @@ export function SettingsPage() {
                 label: LANGUAGE_LABELS[lang],
               }))}
               icon={Languages}
+              ariaLabel="Idioma de práctica"
             />
           </SettingRow>
 
           <SettingRow
-            label="Difficulty Level"
-            detail="Sentences are curated to match your level"
+            label="Nivel de dificultad"
+            detail="Las frases se adaptan a tu nivel"
           >
             <SettingsSelect
               value={settings.level}
               onChange={(val) => updateSetting('level', val as typeof settings.level)}
               options={[
-                { value: 'A1', label: 'A1 — Beginner' },
-                { value: 'A2', label: 'A2 — Elementary' },
-                { value: 'B1', label: 'B1 — Intermediate' },
-                { value: 'B2', label: 'B2 — Upper Intermediate' },
-                { value: 'C1', label: 'C1 — Advanced' },
-                { value: 'C2', label: 'C2 — Proficient' },
+                { value: 'A1', label: 'A1 — Principiante' },
+                { value: 'A2', label: 'A2 — Elemental' },
+                { value: 'B1', label: 'B1 — Intermedio' },
+                { value: 'B2', label: 'B2 — Intermedio alto' },
+                { value: 'C1', label: 'C1 — Avanzado' },
+                { value: 'C2', label: 'C2 — Maestría' },
               ]}
               icon={BookOpen}
+              ariaLabel="Nivel de dificultad"
             />
           </SettingRow>
         </SettingsSection>
 
-        {/* TTS Settings */}
+        {/* Voz TTS */}
         <SettingsSection
-          title="Voice Settings"
-          description="Pick a voice for correct pronunciation playback (requires ElevenLabs API key)."
+          title="Voz"
+          description="Elige la voz con la que el servidor genera el audio de la pronunciación correcta."
         >
           <SettingRow
-            label="TTS Voice"
-            detail="Leave as default to use the system voice"
+            label="Voz de reproducción"
+            detail="Se usa al generar el audio de ejemplo en el servidor"
           >
             <SettingsSelect
               value={settings.voiceId}
               onChange={(val) => updateSetting('voiceId', val)}
               options={[
-                { value: '', label: 'System Default' },
+                { value: '', label: 'Voz predeterminada' },
                 ...VOICE_OPTIONS.map((v) => ({ value: v.id, label: v.label })),
               ]}
               icon={Volume2}
+              ariaLabel="Voz de reproducción"
             />
           </SettingRow>
         </SettingsSection>
 
-        {/* Appearance */}
+        {/* Apariencia */}
         <SettingsSection
-          title="Appearance"
-          description="Toggle dark mode for easier nighttime practice."
+          title="Apariencia"
+          description="Activa el modo oscuro para practicar de noche."
         >
           <SettingRow
-            label="Dark Mode"
-            detail="Switch between light and dark themes"
+            label="Modo oscuro"
+            detail="Alterna entre tema claro y oscuro"
           >
             <button
               type="button"
               onClick={toggleDarkMode}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                darkMode
-                  ? 'bg-slate-700 text-white'
-                  : 'bg-slate-100 text-slate-700'
-              } hover:shadow-md`}
+              className="flex items-center gap-2 px-4 rounded-lg transition-all"
               style={{
+                minHeight: 'var(--touch-target)',
+                backgroundColor: darkMode ? 'var(--surface-container-high)' : 'var(--surface-container)',
+                color: 'var(--on-surface)',
                 border: '1px solid var(--outline-variant)',
                 fontFamily: 'var(--font-body)',
                 fontSize: '0.875rem',
@@ -276,26 +281,26 @@ export function SettingsPage() {
               {darkMode ? (
                 <>
                   <Moon size={16} aria-hidden="true" />
-                  Dark
+                  Oscuro
                 </>
               ) : (
                 <>
                   <Sun size={16} aria-hidden="true" />
-                  Light
+                  Claro
                 </>
               )}
             </button>
           </SettingRow>
         </SettingsSection>
 
-        {/* Actions */}
+        {/* Acciones */}
         <div className="flex gap-4 pt-4">
           <button
             type="submit"
             className="btn-primary flex items-center gap-2"
           >
             <CheckCircle size={16} aria-hidden="true" />
-            Save Settings
+            Guardar cambios
           </button>
           <button
             type="button"
@@ -303,7 +308,7 @@ export function SettingsPage() {
             className="btn-secondary flex items-center gap-2"
           >
             <RefreshCw size={16} aria-hidden="true" />
-            Reset to Defaults
+            Restablecer valores
           </button>
         </div>
       </form>

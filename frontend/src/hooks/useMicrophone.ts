@@ -1,12 +1,17 @@
 // Hook for browser microphone recording
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 interface UseMicrophoneReturn {
   isRecording: boolean;
   audioBlob: Blob | null;
   duration: number;
-  startRecording: () => Promise<void>;
+  /**
+   * Starts recording and resolves with the active MediaStream.
+   * Accepts an existing stream to share a single getUserMedia capture
+   * (e.g. pitch extraction + recorder on the same mic stream).
+   */
+  startRecording: (existingStream?: MediaStream) => Promise<MediaStream>;
   stopRecording: () => void;
   resetRecording: () => void;
   waveformRef: React.RefObject<HTMLCanvasElement | null>;
@@ -21,10 +26,25 @@ export function useMicrophone(): UseMicrophoneReturn {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<number | null>(null);
   const waveformCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+
+  const closeAudioContext = useCallback(() => {
+    const ctx = audioContextRef.current;
+    audioContextRef.current = null;
+    analyserRef.current = null;
+    if (ctx && ctx.state !== 'closed') {
+      ctx.close().catch(() => {});
+    }
+  }, []);
+
+  const stopTracks = useCallback(() => {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+  }, []);
 
   const drawWaveform = useCallback(() => {
     if (!analyserRef.current || !waveformCanvasRef.current) return;
@@ -48,7 +68,7 @@ export function useMicrophone(): UseMicrophoneReturn {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.lineWidth = 2;
-      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c45d3e';
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--teal').trim() || '#1a7a6b';
       ctx.beginPath();
 
       const sliceWidth = canvas.width / bufferLength;
@@ -74,9 +94,9 @@ export function useMicrophone(): UseMicrophoneReturn {
     draw();
   }, []);
 
-  const startRecording = useCallback(async () => {
+  const startRecording = useCallback(async (existingStream?: MediaStream): Promise<MediaStream> => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = existingStream ?? await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
       const mediaRecorder = new MediaRecorder(stream);
@@ -84,7 +104,9 @@ export function useMicrophone(): UseMicrophoneReturn {
       chunksRef.current = [];
 
       // Setup audio analysis for waveform
+      closeAudioContext();
       const audioContext = new AudioContext();
+      audioContextRef.current = audioContext;
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 2048;
@@ -98,11 +120,15 @@ export function useMicrophone(): UseMicrophoneReturn {
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/wav' });
+        // Use the real MediaRecorder MIME (webm/opus, mp4, …), never a fake wav
+        const mimeType = mediaRecorder.mimeType || 'audio/webm';
+        const blob = new Blob(chunksRef.current, { type: mimeType });
         setAudioBlob(blob);
-        stream.getTracks().forEach((track) => track.stop());
+        stopTracks();
+        closeAudioContext();
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
         }
       };
 
@@ -117,11 +143,16 @@ export function useMicrophone(): UseMicrophoneReturn {
 
       // Start waveform visualization
       drawWaveform();
+
+      return stream;
     } catch (error) {
+      // Leave no dangling capture behind on failure (F4)
+      stopTracks();
+      closeAudioContext();
       console.error('Error accessing microphone:', error);
       throw error;
     }
-  }, [drawWaveform]);
+  }, [drawWaveform, closeAudioContext, stopTracks]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
@@ -138,13 +169,45 @@ export function useMicrophone(): UseMicrophoneReturn {
   const resetRecording = useCallback(() => {
     setAudioBlob(null);
     setDuration(0);
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     }
+    stopTracks();
+    closeAudioContext();
+  }, [stopTracks, closeAudioContext]);
+
+  // Release mic stream, AudioContext, timer and rAF on unmount (F4)
+  useEffect(() => {
+    return () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+      const ctx = audioContextRef.current;
+      audioContextRef.current = null;
+      if (ctx && ctx.state !== 'closed') {
+        ctx.close().catch(() => {});
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

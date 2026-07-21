@@ -1,43 +1,47 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Globe, BarChart3, Volume2 } from 'lucide-react';
+import { loadSettings, saveSettings } from '../services/api';
+import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS, type LanguageCode, type LevelCode } from '../types';
 
-const LANGUAGES = [
-  { code: 'en', label: 'English', flag: '🇺🇸' },
-  { code: 'es', label: 'Español', flag: '🇪🇸' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-  { code: 'it', label: 'Italiano', flag: '🇮🇹' },
-  { code: 'pt', label: 'Português', flag: '🇧🇷' },
-  { code: 'ja', label: '日本語', flag: '🇯🇵' },
+/* Idiomas limitados a los soportados por el backend (types/index.ts). */
+const LANGUAGES = SUPPORTED_LANGUAGES.map((code) => ({
+  code,
+  label: LANGUAGE_LABELS[code],
+}));
+
+const LEVELS: Array<{ code: LevelCode; label: string }> = [
+  { code: 'A1', label: 'Principiante' },
+  { code: 'A2', label: 'Elemental' },
+  { code: 'B1', label: 'Intermedio' },
+  { code: 'B2', label: 'Intermedio alto' },
+  { code: 'C1', label: 'Avanzado' },
+  { code: 'C2', label: 'Maestría' },
 ];
 
-const LEVELS = [
-  { code: 'A1', label: 'Beginner', description: 'Basic phrases and expressions' },
-  { code: 'A2', label: 'Elementary', description: 'Everyday situations' },
-  { code: 'B1', label: 'Intermediate', description: 'Clear standard speech' },
-  { code: 'B2', label: 'Upper Intermediate', description: 'Complex topics fluently' },
-  { code: 'C1', label: 'Advanced', description: 'Demanding, longer texts' },
-  { code: 'C2', label: 'Proficient', description: 'Near-native precision' },
-];
-
+/* Voces alineadas con SettingsPage (OpenAI TTS). */
 const VOICES = [
-  { id: 'female', label: 'Female Native' },
-  { id: 'male', label: 'Male Native' },
+  { id: 'alloy', label: 'Alloy (neutral)' },
+  { id: 'echo', label: 'Echo (cálida)' },
+  { id: 'fable', label: 'Fable (narradora)' },
+  { id: 'onyx', label: 'Onyx (grave)' },
+  { id: 'nova', label: 'Nova (amigable)' },
+  { id: 'shimmer', label: 'Shimmer (suave)' },
 ];
 
 const STEPS = [
-  { icon: Globe, label: 'Language' },
-  { icon: BarChart3, label: 'Level' },
-  { icon: Volume2, label: 'Voice' },
+  { icon: Globe, label: 'Idioma' },
+  { icon: BarChart3, label: 'Nivel' },
+  { icon: Volume2, label: 'Voz' },
 ];
 
 export function OnboardingPage() {
   const navigate = useNavigate();
+  const reduceMotion = useReducedMotion();
   const [step, setStep] = useState(0);
-  const [language, setLanguage] = useState('');
-  const [level, setLevel] = useState('');
+  const [language, setLanguage] = useState<LanguageCode | ''>('');
+  const [level, setLevel] = useState<LevelCode | ''>('');
   const [voice, setVoice] = useState('');
 
   const canContinue = step === 0 ? !!language : step === 1 ? !!level : !!voice;
@@ -45,8 +49,9 @@ export function OnboardingPage() {
   function handleContinue() {
     if (step < 2) {
       setStep(step + 1);
-    } else {
-      localStorage.setItem('echo_onboarding', JSON.stringify({ language, level, voice }));
+    } else if (language && level) {
+      /* Fusiona con echo_settings para que el resto de la app lea estos valores. */
+      saveSettings({ ...loadSettings(), language, level, voiceId: voice });
       localStorage.setItem('echo_onboarded', 'true');
       navigate('/');
     }
@@ -56,26 +61,25 @@ export function OnboardingPage() {
     if (step > 0) setStep(step - 1);
   }
 
+  const stepTransition = reduceMotion ? { duration: 0 } : { duration: 0.3 };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8">
       <motion.div
         className="w-full max-w-md"
-        initial={{ opacity: 0, scale: 0.96 }}
+        initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={reduceMotion ? { duration: 0 } : { duration: 0.5 }}
       >
         {/* Terminal label */}
-        <p
-          className="text-xs tracking-[0.2em] uppercase mb-6 text-center opacity-60"
-          style={{ fontFamily: 'var(--font-mono)', color: 'var(--on-surface-variant)' }}
-        >
-          {`> CALIBRATION PROTOCOL 0${step + 1} / 03`}
+        <p className="terminal-label text-center mb-6">
+          {`Calibración 0${step + 1} / 03`}
         </p>
 
-        {/* Progress dots */}
-        <div className="flex justify-center items-center gap-2 mb-8">
+        {/* Indicador de progreso */}
+        <div className="flex justify-center items-center gap-2 mb-8" aria-hidden="true">
           {STEPS.map((_, i) => (
-            <div key={i} className="flex items-center gap-2">
+            <div key={STEPS[i].label} className="flex items-center gap-2">
               <div
                 className="w-3 h-3 rounded-full transition-all"
                 style={{
@@ -88,9 +92,7 @@ export function OnboardingPage() {
                 <div
                   className="w-8 h-0.5 rounded"
                   style={{
-                    background: i < step
-                      ? 'linear-gradient(90deg, var(--primary), var(--accent))'
-                      : 'var(--outline-variant)',
+                    backgroundColor: i < step ? 'var(--primary)' : 'var(--outline-variant)',
                   }}
                 />
               )}
@@ -98,32 +100,36 @@ export function OnboardingPage() {
           ))}
         </div>
 
-        {/* Glass panel */}
-        <div
-          className="rounded-xl p-6 md:p-8"
-          style={{
-            backgroundColor: 'var(--glass-bg)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid var(--glass-border)',
-            boxShadow: 'var(--shadow-lg)',
-          }}
-        >
+        {/* Panel */}
+        <div className="card">
           <AnimatePresence mode="wait">
             {step === 0 && (
-              <StepContent key="lang" title="Choose your language">
+              <StepContent key="lang" title="Elige tu idioma" transition={stepTransition}>
                 <div className="grid grid-cols-2 gap-3">
                   {LANGUAGES.map((lang) => (
                     <button
                       key={lang.code}
                       onClick={() => setLanguage(lang.code)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all"
+                      aria-pressed={language === lang.code}
+                      className="flex items-center gap-3 px-4 rounded-lg text-left transition-all"
                       style={{
+                        minHeight: 'var(--touch-target)',
                         backgroundColor: language === lang.code ? 'var(--primary-container)' : 'var(--surface-container)',
                         border: language === lang.code ? '2px solid var(--primary)' : '1px solid var(--ghost-border)',
                         boxShadow: language === lang.code ? 'var(--shadow-glow)' : 'none',
                       }}
                     >
-                      <span className="text-lg">{lang.flag}</span>
+                      <span
+                        className="text-xs font-semibold uppercase px-1.5 py-0.5 rounded"
+                        style={{
+                          fontFamily: 'var(--font-mono)',
+                          backgroundColor: language === lang.code ? 'var(--primary)' : 'var(--surface-container-high)',
+                          color: language === lang.code ? 'var(--on-primary)' : 'var(--on-surface-variant)',
+                        }}
+                        aria-hidden="true"
+                      >
+                        {lang.code}
+                      </span>
                       <span
                         className="text-sm font-medium"
                         style={{ color: language === lang.code ? 'var(--primary)' : 'var(--on-surface)' }}
@@ -137,14 +143,18 @@ export function OnboardingPage() {
             )}
 
             {step === 1 && (
-              <StepContent key="level" title="Select your level">
+              <StepContent key="level" title="Selecciona tu nivel" transition={stepTransition}>
                 <div className="grid grid-cols-2 gap-3">
                   {LEVELS.map((l) => (
                     <button
                       key={l.code}
                       onClick={() => setLevel(l.code)}
-                      className="flex flex-col items-start px-4 py-3 rounded-lg transition-all"
+                      aria-pressed={level === l.code}
+                      className="flex flex-col items-start px-4 rounded-lg transition-all"
                       style={{
+                        minHeight: 'var(--touch-target)',
+                        paddingTop: '0.75rem',
+                        paddingBottom: '0.75rem',
                         backgroundColor: level === l.code ? 'var(--primary)' : 'var(--surface-container)',
                         border: level === l.code ? 'none' : '1px solid var(--ghost-border)',
                         boxShadow: level === l.code ? 'var(--shadow-glow)' : 'none',
@@ -169,14 +179,16 @@ export function OnboardingPage() {
             )}
 
             {step === 2 && (
-              <StepContent key="voice" title="Voice preference">
-                <div className="flex flex-col gap-3">
+              <StepContent key="voice" title="Preferencia de voz" transition={stepTransition}>
+                <div className="grid grid-cols-2 gap-3">
                   {VOICES.map((v) => (
                     <button
                       key={v.id}
                       onClick={() => setVoice(v.id)}
-                      className="flex items-center gap-4 px-5 py-4 rounded-lg transition-all"
+                      aria-pressed={voice === v.id}
+                      className="flex items-center gap-3 px-4 rounded-lg transition-all"
                       style={{
+                        minHeight: 'var(--touch-target)',
                         backgroundColor: voice === v.id ? 'var(--primary-container)' : 'var(--surface-container)',
                         border: voice === v.id ? '2px solid var(--primary)' : '1px solid var(--ghost-border)',
                         boxShadow: voice === v.id ? 'var(--shadow-glow)' : 'none',
@@ -185,6 +197,7 @@ export function OnboardingPage() {
                       <Volume2
                         size={20}
                         style={{ color: voice === v.id ? 'var(--primary)' : 'var(--on-surface-variant)' }}
+                        aria-hidden="true"
                       />
                       <span
                         className="text-sm font-semibold"
@@ -199,39 +212,31 @@ export function OnboardingPage() {
             )}
           </AnimatePresence>
 
-          {/* Navigation buttons */}
+          {/* Navegación */}
           <div className="flex justify-between mt-8">
             <button
               onClick={handleBack}
               disabled={step === 0}
-              className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-opacity"
+              className="flex items-center gap-1 px-4 rounded-lg text-sm font-medium transition-opacity"
               style={{
+                minHeight: 'var(--touch-target)',
                 color: 'var(--on-surface-variant)',
                 border: '1px solid var(--ghost-border)',
                 opacity: step === 0 ? 0.3 : 1,
               }}
             >
-              <ChevronLeft size={16} />
-              Back
+              <ChevronLeft size={16} aria-hidden="true" />
+              Atrás
             </button>
 
-            <motion.button
+            <button
               onClick={handleContinue}
               disabled={!canContinue}
-              className="flex items-center gap-2 px-6 py-2 rounded-lg text-sm font-bold transition-all"
-              style={{
-                background: canContinue
-                  ? 'linear-gradient(135deg, var(--primary), var(--accent))'
-                  : 'var(--outline-variant)',
-                color: canContinue ? 'white' : 'var(--on-surface-variant)',
-                boxShadow: canContinue ? 'var(--shadow-md)' : 'none',
-              }}
-              whileHover={canContinue ? { scale: 1.03 } : {}}
-              whileTap={canContinue ? { scale: 0.97 } : {}}
+              className="btn-primary"
             >
-              {step === 2 ? 'FINISH' : 'CONTINUE'}
-              <ChevronRight size={16} />
-            </motion.button>
+              {step === 2 ? 'Empezar' : 'Continuar'}
+              <ChevronRight size={16} aria-hidden="true" />
+            </button>
           </div>
         </div>
       </motion.div>
@@ -239,13 +244,21 @@ export function OnboardingPage() {
   );
 }
 
-function StepContent({ title, children }: { title: string; children: React.ReactNode }) {
+function StepContent({
+  title,
+  transition,
+  children,
+}: {
+  title: string;
+  transition: { duration: number };
+  children: React.ReactNode;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
+      transition={transition}
     >
       <h2
         className="text-lg font-bold mb-5"

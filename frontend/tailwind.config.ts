@@ -1,5 +1,9 @@
 import type { Config } from 'tailwindcss'
 
+/* Echo Design System — Teal Tech (design/brand-spec.md) */
+/* Los colores apuntan a las CSS custom properties de src/index.css, */
+/* de modo que el tema (light/dark) se resuelve en runtime.          */
+
 const config: Config = {
   content: [
     './index.html',
@@ -8,67 +12,92 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Primary — Deep Slate
-        primary: {
-          DEFAULT: '#2d3142',
-          container: '#e8e6f0',
-          dim: '#3d4055',
-          fixed: '#e8e6f0',
-          'fixed-dim': '#d4d2e0',
-          foreground: '#ffffff',
-          'on-container': '#1a1d2e',
+        // Tokens base
+        teal: {
+          DEFAULT: 'var(--teal)',
+          dim: 'var(--teal-dim)',
+          hover: 'var(--teal-hover)',
         },
-        // Accent — Terracotta
-        accent: {
-          DEFAULT: '#c45d3e',
-          container: '#fce8e2',
-          hover: '#a84e33',
-          foreground: '#ffffff',
-          'on-container': '#8b3a24',
+        amber: {
+          DEFAULT: 'var(--amber)',
+          hover: 'var(--amber-hover)',
         },
-        // Secondary — Warm Sage
-        secondary: {
-          DEFAULT: '#5a7a5a',
-          container: '#e0ede0',
-          foreground: '#ffffff',
-          'on-container': '#3d5a3d',
+        bg: 'var(--bg)',
+        surface: {
+          DEFAULT: 'var(--surface)',
+          elevated: 'var(--surface-elevated)',
         },
-        // Tertiary — Warm Gold
-        tertiary: {
-          DEFAULT: '#9a7b4f',
-          container: '#f5ecd8',
-          foreground: '#ffffff',
-          'on-container': '#6b5633',
+        fg: 'var(--fg)',
+        muted: 'var(--muted)',
+        border: {
+          DEFAULT: 'var(--border)',
+          light: 'var(--border-light)',
         },
-        // Score Colors
+        // Semánticos de score (spec)
         score: {
-          correct: '#3d8b4f',
-          'correct-bg': 'rgba(61, 139, 79, 0.1)',
-          partial: '#b8860b',
-          'partial-bg': 'rgba(184, 134, 11, 0.1)',
-          incorrect: '#c0392b',
-          'incorrect-bg': 'rgba(192, 57, 43, 0.1)',
-          missed: '#7a7674',
-          'missed-bg': 'rgba(122, 118, 116, 0.1)',
+          hi: 'var(--score-hi)',
+          mid: 'var(--score-mid)',
+          lo: 'var(--score-lo)',
+          // Aliases legacy
+          correct: 'var(--score-correct)',
+          'correct-bg': 'var(--score-correct-bg)',
+          partial: 'var(--score-partial)',
+          'partial-bg': 'var(--score-partial-bg)',
+          incorrect: 'var(--score-incorrect)',
+          'incorrect-bg': 'var(--score-incorrect-bg)',
+          missed: 'var(--score-missed)',
+          'missed-bg': 'var(--score-missed-bg)',
         },
+        // Aliases legacy (mapean a los tokens nuevos)
+        primary: {
+          DEFAULT: 'var(--primary)',
+          container: 'var(--primary-container)',
+          dim: 'var(--primary-dim)',
+          fixed: 'var(--primary-fixed)',
+          'fixed-dim': 'var(--primary-fixed-dim)',
+          foreground: 'var(--on-primary)',
+          'on-container': 'var(--on-primary-container)',
+        },
+        accent: {
+          DEFAULT: 'var(--accent)',
+          container: 'var(--accent-container)',
+          hover: 'var(--accent-hover)',
+          foreground: 'var(--on-accent)',
+          'on-container': 'var(--on-accent-container)',
+        },
+        secondary: {
+          DEFAULT: 'var(--secondary)',
+          container: 'var(--secondary-container)',
+          foreground: 'var(--on-secondary)',
+          'on-container': 'var(--on-secondary-container)',
+        },
+        tertiary: {
+          DEFAULT: 'var(--tertiary)',
+          container: 'var(--tertiary-container)',
+          foreground: 'var(--on-tertiary)',
+          'on-container': 'var(--on-tertiary-container)',
+        },
+        // Tonos de mandarín
         tone: {
-          1: '#C4B5E3',
-          2: '#A85880',
-          3: '#D4AF37',
-          4: '#58A880',
-          0: '#8A8A8A',
+          1: 'var(--teal)',
+          2: 'var(--amber)',
+          3: 'var(--score-lo)',
+          4: 'var(--score-hi)',
+          0: 'var(--muted)',
         },
       },
       fontFamily: {
-        headline: ["'DM Serif Display'", 'Georgia', 'serif'],
-        body: ["'Be Vietnam Pro'", 'system-ui', 'sans-serif'],
+        display: ["'Outfit'", 'system-ui', 'sans-serif'],
+        headline: ["'Outfit'", 'system-ui', 'sans-serif'],
+        sans: ["'Inter'", 'system-ui', 'sans-serif'],
+        body: ["'Inter'", 'system-ui', 'sans-serif'],
         mono: ["'JetBrains Mono'", "'Fira Code'", 'monospace'],
       },
       borderRadius: {
-        sm: '0.375rem',
-        md: '0.75rem',
-        lg: '1rem',
-        xl: '1.5rem',
+        sm: '0.75rem',
+        md: '1rem',
+        lg: '1.5rem',
+        xl: '2rem',
         full: '9999px',
       },
       spacing: {
@@ -76,22 +105,38 @@ const config: Config = {
         sm: '0.5rem',
         md: '1rem',
         lg: '1.5rem',
-        xl: '2rem',
-        '2xl': '3rem',
-        '3xl': '4rem',
+        xl: '2.5rem',
+        '2xl': '3.5rem',
+      },
+      transitionTimingFunction: {
+        spring: 'cubic-bezier(0.32, 0.72, 0, 1)',
+        'ease-out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
       },
       animation: {
         shimmer: 'shimmer 1.5s ease-in-out infinite',
-        'slide-in': 'slideIn 250ms ease-out',
+        'slide-in': 'slideIn 300ms cubic-bezier(0.32, 0.72, 0, 1)',
+        'fade-up': 'fade-up 700ms cubic-bezier(0.32, 0.72, 0, 1) both',
+        'nav-in': 'nav-in 600ms cubic-bezier(0.32, 0.72, 0, 1) both',
+        'streak-pulse': 'streak-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite',
       },
       keyframes: {
         shimmer: {
           '0%': { backgroundPosition: '200% 0' },
           '100%': { backgroundPosition: '-200% 0' },
         },
-        'slide-in': {
+        slideIn: {
           from: { transform: 'translateX(100%)', opacity: '0' },
           to: { transform: 'translateX(0)', opacity: '1' },
+        },
+        'fade-up': {
+          from: { opacity: '0', transform: 'translateY(24px)' },
+        },
+        'nav-in': {
+          from: { opacity: '0', transform: 'translateY(-16px) scale(0.96)' },
+        },
+        'streak-pulse': {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(232, 184, 74, 0.4)' },
+          '50%': { boxShadow: '0 0 0 8px rgba(232, 184, 74, 0)' },
         },
       },
     },

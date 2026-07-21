@@ -31,8 +31,9 @@ export function PracticePage() {
   } = useMicrophone();
 
   const userId = 'web-user-001';
-  const level = 'A1';
-  const language = 'en';
+  const settings = api.loadSettings();
+  const level = settings.level;
+  const language = settings.language === 'zh' ? 'en' : settings.language;
 
   const loadSentence = useCallback(async () => {
     setLoading(true);
@@ -228,10 +229,10 @@ export function PracticePage() {
                   className="w-full flex items-center justify-center gap-2 text-lg py-4 rounded-xl font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--accent)]"
                   style={{
                     backgroundColor: 'var(--accent)',
-                    color: 'white',
-                    boxShadow: '0 4px 16px rgba(196, 93, 62, 0.25)',
+                    color: 'var(--on-accent)',
+                    boxShadow: '0 4px 16px rgba(232,184,74,0.25)',
                   }}
-                  whileHover={{ scale: 1.02, boxShadow: '0 6px 24px rgba(196, 93, 62, 0.35)' }}
+                  whileHover={{ scale: 1.02, boxShadow: '0 6px 24px rgba(232,184,74,0.35)' }}
                   whileTap={{ scale: 0.98 }}
                   aria-label="Analyze your pronunciation"
                 >
