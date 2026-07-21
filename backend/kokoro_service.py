@@ -28,11 +28,14 @@ class KokoroService:
             espeakng_loader.make_library_available()
 
             from phonemizer.backend.espeak.wrapper import EspeakWrapper
-            EspeakWrapper._ESPEAK_LIBRARY = str(espeakng_loader.get_library_path())
-            EspeakWrapper._ESPEAK_DATA_PATH = str(espeakng_loader.get_data_path())
-
+            EspeakWrapper.set_library(str(espeakng_loader.get_library_path()))
             os.environ['PHONEMIZER_ESPEAK_LIBRARY'] = str(espeakng_loader.get_library_path())
-            os.environ['PHONEMIZER_ESPEAK_DATA_PATH'] = str(espeakng_loader.get_data_path())
+
+            # phonemizer >=3.0 removed set_data_path; misaki calls it at
+            # module import. Shim it — phonemizer 3.x discovers data path
+            # from the espeak library itself, so this is a no-op.
+            if not hasattr(EspeakWrapper, 'set_data_path'):
+                EspeakWrapper.set_data_path = staticmethod(lambda p: None)
 
             from kokoro import KPipeline
 
