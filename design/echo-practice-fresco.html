@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Echo · Practicar pronunciaci&oacute;n</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal: #1A7A6B; --teal-hover: #156A5D; --teal-dim: #2A9A8B;
+  --amber: #E8B84A; --amber-hover: #D0A030;
+  --bg: #FAFAFA; --surface: #FFFFFF; --surface-elevated: #F5F5F5;
+  --fg: #0E1412; --muted: #5A7268; --border: #D0E8E0; --border-light: #E8F5F0;
+  --glow: rgba(232,184,74,0.25);
+  --radius-sm: 0.75rem; --radius-md: 1rem; --radius-lg: 1.5rem; --radius-xl: 2rem;
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --ease-out: cubic-bezier(0.16,1,0.3,1);
+  --ease-spring: cubic-bezier(0.32,0.72,0,1);
+}
+[data-theme="dark"] {
+  --teal: #7AC8B8; --teal-hover: #8AD8C8; --teal-dim: #5AAAA0;
+  --amber: #F0D080; --amber-hover: #E0C060;
+  --bg: #0E1412; --surface: #182220; --surface-elevated: #1E2A25;
+  --fg: #E0F0EA; --muted: #90B0A8; --border: #2A4840; --border-light: #1E3830;
+  --glow: rgba(240,208,128,0.20);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --teal: #7AC8B8; --teal-hover: #8AD8C8; --teal-dim: #5AAAA0;
+    --amber: #F0D080; --amber-hover: #E0C060;
+    --bg: #0E1412; --surface: #182220; --surface-elevated: #1E2A25;
+    --fg: #E0F0EA; --muted: #90B0A8; --border: #2A4840; --border-light: #1E3830;
+    --glow: rgba(240,208,128,0.20);
+  }
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-body);background:var(--bg);color:var(--fg);
+  line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden
+}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:var(--radius-sm)}
+.btn-primary:focus-visible{border-radius:999px}
+.theme-toggle:focus-visible{border-radius:50%}
+[hidden]{display:none!important}
+
+.skip-nav{
+  position:absolute;top:-100%;left:0;z-index:1000;
+  background:var(--teal);color:#fff;padding:.5rem 1rem;font-weight:600;
+  border-radius:0 0 var(--radius-sm) 0;transition:top 150ms var(--ease-out)
+}
+.skip-nav:focus{top:0}
+
+/* ---------- Fluid Island Topbar (shared) ---------- */
+.topbar-wrap{
+  position:sticky;top:0;z-index:50;padding:1rem 1.5rem 0;
+  display:flex;justify-content:center;pointer-events:none
+}
+.topbar{
+  pointer-events:auto;
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+  min-height:52px;padding:0 1rem 0 1.5rem;
+  background:rgba(255,255,255,0.88);backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(208,232,224,0.25);
+  border-radius:999px;box-shadow:0 4px 24px rgba(0,0,0,0.06);
+  max-width:680px;width:100%;
+  transition:box-shadow 300ms var(--ease-out);
+  animation:nav-in 600ms var(--ease-spring) both
+}
+[data-theme="dark"] .topbar{
+  background:rgba(24,34,32,0.88);border-color:rgba(42,72,64,0.25)
+}
+@keyframes nav-in{from{opacity:0;transform:translateY(-16px) scale(.96)}}
+.wordmark{
+  font-family:var(--font-display);font-size:1.05rem;font-weight:700;
+  letter-spacing:.08em;color:var(--teal);text-decoration:none
+}
+.topbar-left{display:flex;align-items:center;gap:1.25rem;min-width:0}
+.topbar-nav{display:none;gap:.15rem}
+@media(min-width:640px){.topbar-nav{display:flex}}
+.topbar-nav a{
+  padding:.4rem .8rem;border-radius:999px;font-size:.8125rem;font-weight:500;
+  color:var(--muted);text-decoration:none;white-space:nowrap;
+  transition:background 150ms var(--ease-out),color 150ms var(--ease-out)
+}
+.topbar-nav a:hover{background:var(--surface-elevated);color:var(--fg)}
+.topbar-nav a[aria-current="page"]{background:var(--teal);color:#fff}
+.topbar-right{display:flex;align-items:center;gap:.5rem;flex:none}
+.theme-toggle{
+  width:44px;height:44px;border-radius:50%;border:1px solid var(--border-light);
+  background:transparent;cursor:pointer;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  transition:background 150ms var(--ease-out),color 150ms var(--ease-out);
+  font-size:1rem
+}
+.theme-toggle:hover{background:var(--surface-elevated);color:var(--fg)}
+
+/* ---------- Main Layout ---------- */
+main{max-width:640px;margin:0 auto;padding:2rem 1.5rem 5rem}
+@media(max-width:768px){main{padding:1.5rem 1rem 4rem}}
+.page{display:flex;flex-direction:column;gap:1.5rem}
+
+/* ---------- Sentence Prompt (teal block, reused hero-main language) ---------- */
+.prompt{background:var(--teal);border-radius:var(--radius-lg);padding:2rem;position:relative;overflow:hidden;
+  animation:fade-up 700ms var(--ease-spring) both}
+@keyframes fade-up{from{opacity:0;transform:translateY(20px)}}
+@media(max-width:768px){.prompt{padding:1.5rem}}
+.prompt::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 30% 10%,rgba(255,255,255,0.12),transparent);
+  pointer-events:none
+}
+.prompt-meta{display:flex;align-items:center;gap:.5rem;position:relative;margin-bottom:.85rem}
+.prompt-pill{
+  padding:.25rem .65rem;border-radius:999px;background:rgba(255,255,255,0.15);
+  color:rgba(255,255,255,0.85);font-family:var(--font-mono);font-size:.65rem;
+  font-weight:600;letter-spacing:.04em
+}
+.prompt-sent{
+  font-family:var(--font-display);font-size:clamp(1.375rem,3vw,1.75rem);font-weight:700;
+  letter-spacing:-.01em;line-height:1.3;color:#fff;position:relative
+}
+.prompt-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.25rem;position:relative}
+.ghost-btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  padding:.55rem 1rem;min-height:44px;border-radius:999px;
+  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.22);
+  color:rgba(255,255,255,0.92);font-family:var(--font-body);font-weight:500;font-size:.85rem;
+  cursor:pointer;transition:background 150ms var(--ease-out)
+}
+.ghost-btn:hover{background:rgba(255,255,255,0.18)}
+.ghost-btn svg{width:15px;height:15px;flex:none}
+
+/* ---------- Double-Bezel Recorder Card ---------- */
+.doppel{
+  padding:2px;border-radius:var(--radius-xl);
+  background:linear-gradient(135deg,var(--border),var(--border-light),var(--border));
+  box-shadow:0 8px 40px rgba(26,122,107,0.12);
+  animation:fade-up 700ms var(--ease-spring) .1s both
+}
+.doppel__inner{
+  background:var(--surface);border-radius:calc(var(--radius-xl) - 2px);
+  padding:2.25rem 1.75rem;display:flex;flex-direction:column;align-items:center;gap:1.5rem;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,0.15)
+}
+@media(max-width:768px){.doppel__inner{padding:1.75rem 1.25rem}}
+
+.waveform{width:100%;max-width:340px;height:64px}
+.waveform path{stroke:var(--teal);stroke-width:2;fill:none;opacity:.85}
+
+.rec-controls{display:flex;align-items:center;gap:1.25rem}
+.rec-btn{
+  width:76px;height:76px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 28px rgba(26,122,107,0.32);
+  transition:transform 300ms var(--ease-spring),box-shadow 300ms var(--ease-spring)
+}
+.rec-btn:hover{transform:scale(1.05)}
+.rec-btn:active{transform:scale(.96)}
+.rec-btn svg{width:28px;height:28px}
+.rec-btn.recording{
+  background:var(--amber);color:#1A1810;
+  animation:rec-pulse 1.6s var(--ease-out) infinite
+}
+@keyframes rec-pulse{0%,100%{box-shadow:0 0 0 0 rgba(232,184,74,0.45)}50%{box-shadow:0 0 0 14px rgba(232,184,74,0)}}
+.mini-icon-btn{
+  width:44px;height:44px;border-radius:50%;border:1px solid var(--border-light);
+  background:transparent;color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 150ms var(--ease-out),color 150ms var(--ease-out)
+}
+.mini-icon-btn:hover{background:var(--surface-elevated);color:var(--fg)}
+.mini-icon-btn svg{width:18px;height:18px}
+.rec-timer{font-family:var(--font-mono);font-size:.8125rem;color:var(--muted);letter-spacing:.02em}
+
+.analyze-btn{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:.6rem;
+  padding:1rem 1.5rem;min-height:56px;border:none;border-radius:999px;cursor:pointer;
+  background:var(--teal);color:#fff;font-family:var(--font-body);font-weight:600;font-size:1rem;
+  letter-spacing:.01em;box-shadow:0 6px 24px rgba(26,122,107,0.28);
+  transition:transform 300ms var(--ease-spring),box-shadow 300ms var(--ease-spring)
+}
+.analyze-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(26,122,107,0.36)}
+.analyze-btn:active{transform:scale(.98)}
+.analyze-btn svg{width:19px;height:19px}
+
+/* ---------- Level/Language Chips ---------- */
+.chip-row{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+.chip{
+  padding:.35rem .8rem;border-radius:999px;background:var(--surface-elevated);
+  border:1px solid var(--border-light);font-size:.75rem;font-weight:500;color:var(--muted)
+}
+
+.mock-credits{padding:.5rem 0 0;text-align:center}
+.mock-credits .mock-note{
+  font-family:var(--font-mono);font-size:.65rem;letter-spacing:.04em;color:var(--muted)
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<a class="skip-nav" href="#main">Saltar al contenido</a>
+
+<div class="topbar-wrap">
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="wordmark" href="echo-home-fresco.html">ECHO</a>
+      <nav class="topbar-nav" aria-label="Navegaci&oacute;n principal">
+        <a href="echo-home-fresco.html">Inicio</a>
+        <a href="echo-practice-fresco.html" aria-current="page">Practicar</a>
+        <a href="echo-progress-fresco.html">Progreso</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-toggle" data-theme-btn aria-label="Cambiar tema">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+</div>
+
+<main id="main">
+<div class="page">
+
+  <!-- Sentence Prompt -->
+  <section class="prompt" aria-labelledby="target-sentence">
+    <div class="prompt-meta">
+      <span class="prompt-pill">A1 · Ingl&eacute;s</span>
+    </div>
+    <p class="prompt-sent" id="target-sentence">I would like a cup of coffee, please.</p>
+    <div class="prompt-actions">
+      <button type="button" class="ghost-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Escuchar
+      </button>
+      <button type="button" class="ghost-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+        Otra frase
+      </button>
+    </div>
+  </section>
+
+  <!-- Recorder -->
+  <section class="doppel" aria-label="Grabadora de pronunciaci&oacute;n">
+    <div class="doppel__inner">
+      <svg class="waveform" viewBox="0 0 340 64" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 32 L10 32 L16 18 L22 46 L28 10 L34 54 L40 22 L46 42 L52 14 L58 50 L64 26 L70 38 L76 20 L82 44 L88 16 L94 48 L100 30 L106 36 L112 12 L118 52 L124 24 L130 40 L136 18 L142 46 L148 32 L154 20 L160 44 L166 28 L172 34 L178 16 L184 50 L190 22 L196 42 L202 30 L208 36 L214 14 L220 48 L226 26 L232 38 L238 32 L244 20 L250 44 L256 16 L262 50 L268 30 L274 36 L280 24 L286 40 L292 32 L298 28 L304 34 L310 22 L316 40 L322 32 L328 28 L334 32 L340 32"/>
+      </svg>
+      <div class="rec-controls">
+        <button type="button" class="mini-icon-btn" aria-label="Reiniciar grabaci&oacute;n">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        </button>
+        <button type="button" class="rec-btn" aria-label="Detener grabaci&oacute;n" aria-pressed="true">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>
+        </button>
+        <button type="button" class="mini-icon-btn" aria-label="Reproducir grabaci&oacute;n">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+      </div>
+      <span class="rec-timer">00:03.2</span>
+    </div>
+  </section>
+
+  <!-- Analyze CTA -->
+  <button type="button" class="analyze-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+    Analizar mi pronunciaci&oacute;n
+  </button>
+
+  <div class="chip-row">
+    <span class="chip">Estado: grabaci&oacute;n lista</span>
+    <span class="chip">Otros estados: inactivo &middot; grabando &middot; analizando</span>
+  </div>
+
+  <footer class="mock-credits">
+    <span class="mock-note">DATOS SIMULADOS &middot; al analizar, navega a Resultados</span>
+  </footer>
+
+</div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var themeBtn = document.querySelector('[data-theme-btn]');
+  var savedTheme = 'system';
+  try { savedTheme = localStorage.getItem('echo-theme') || 'system'; } catch (e) {}
+  function applyTheme(choice) {
+    if (choice === 'system') { document.documentElement.removeAttribute('data-theme'); }
+    else { document.documentElement.setAttribute('data-theme', choice); }
+    try { localStorage.setItem('echo-theme', choice); } catch (e) {}
+  }
+  applyTheme(savedTheme);
+  themeBtn.addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme') || 'system';
+    var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var isLight = cur === 'light' || (cur === 'system' && !isDark);
+    applyTheme(isLight ? 'dark' : 'light');
+  });
+
+  var analyze = document.querySelector('.analyze-btn');
+  if (analyze) {
+    analyze.addEventListener('click', function () {
+      window.location.href = 'echo-results-fresco.html';
+    });
+  }
+})();
+</script>
+</body>
+</html>

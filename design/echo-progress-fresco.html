@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Echo · Tu progreso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal: #1A7A6B; --teal-hover: #156A5D; --teal-dim: #2A9A8B;
+  --amber: #E8B84A; --amber-hover: #D0A030;
+  --bg: #FAFAFA; --surface: #FFFFFF; --surface-elevated: #F5F5F5;
+  --fg: #0E1412; --muted: #5A7268; --border: #D0E8E0; --border-light: #E8F5F0;
+  --glow: rgba(232,184,74,0.25);
+  --radius-sm: 0.75rem; --radius-md: 1rem; --radius-lg: 1.5rem; --radius-xl: 2rem;
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --ease-out: cubic-bezier(0.16,1,0.3,1);
+  --ease-spring: cubic-bezier(0.32,0.72,0,1);
+  --hi: #2E8A5A; --mid: #C4A040; --lo: #C84A5A;
+}
+[data-theme="dark"] {
+  --teal: #7AC8B8; --teal-hover: #8AD8C8; --teal-dim: #5AAAA0;
+  --amber: #F0D080; --amber-hover: #E0C060;
+  --bg: #0E1412; --surface: #182220; --surface-elevated: #1E2A25;
+  --fg: #E0F0EA; --muted: #90B0A8; --border: #2A4840; --border-light: #1E3830;
+  --glow: rgba(240,208,128,0.20);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --teal: #7AC8B8; --teal-hover: #8AD8C8; --teal-dim: #5AAAA0;
+    --amber: #F0D080; --amber-hover: #E0C060;
+    --bg: #0E1412; --surface: #182220; --surface-elevated: #1E2A25;
+    --fg: #E0F0EA; --muted: #90B0A8; --border: #2A4840; --border-light: #1E3830;
+    --glow: rgba(240,208,128,0.20);
+  }
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-body);background:var(--bg);color:var(--fg);
+  line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden
+}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:var(--radius-sm)}
+.session-card a:focus-visible{border-radius:999px}
+.theme-toggle:focus-visible{border-radius:50%}
+
+.skip-nav{
+  position:absolute;top:-100%;left:0;z-index:1000;
+  background:var(--teal);color:#fff;padding:.5rem 1rem;font-weight:600;
+  border-radius:0 0 var(--radius-sm) 0;transition:top 150ms var(--ease-out)
+}
+.skip-nav:focus{top:0}
+
+.topbar-wrap{
+  position:sticky;top:0;z-index:50;padding:1rem 1.5rem 0;
+  display:flex;justify-content:center;pointer-events:none
+}
+.topbar{
+  pointer-events:auto;
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+  min-height:52px;padding:0 1rem 0 1.5rem;
+  background:rgba(255,255,255,0.88);backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(208,232,224,0.25);
+  border-radius:999px;box-shadow:0 4px 24px rgba(0,0,0,0.06);
+  max-width:680px;width:100%;
+  transition:box-shadow 300ms var(--ease-out);
+  animation:nav-in 600ms var(--ease-spring) both
+}
+[data-theme="dark"] .topbar{
+  background:rgba(24,34,32,0.88);border-color:rgba(42,72,64,0.25)
+}
+@keyframes nav-in{from{opacity:0;transform:translateY(-16px) scale(.96)}}
+.wordmark{
+  font-family:var(--font-display);font-size:1.05rem;font-weight:700;
+  letter-spacing:.08em;color:var(--teal);text-decoration:none
+}
+.topbar-left{display:flex;align-items:center;gap:1.25rem;min-width:0}
+.topbar-nav{display:none;gap:.15rem}
+@media(min-width:640px){.topbar-nav{display:flex}}
+.topbar-nav a{
+  padding:.4rem .8rem;border-radius:999px;font-size:.8125rem;font-weight:500;
+  color:var(--muted);text-decoration:none;white-space:nowrap;
+  transition:background 150ms var(--ease-out),color 150ms var(--ease-out)
+}
+.topbar-nav a:hover{background:var(--surface-elevated);color:var(--fg)}
+.topbar-nav a[aria-current="page"]{background:var(--teal);color:#fff}
+.topbar-right{display:flex;align-items:center;gap:.5rem;flex:none}
+.theme-toggle{
+  width:44px;height:44px;border-radius:50%;border:1px solid var(--border-light);
+  background:transparent;cursor:pointer;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  transition:background 150ms var(--ease-out),color 150ms var(--ease-out);
+  font-size:1rem
+}
+.theme-toggle:hover{background:var(--surface-elevated);color:var(--fg)}
+
+main{max-width:1080px;margin:0 auto;padding:2rem 1.5rem 5rem}
+@media(max-width:768px){main{padding:1.5rem 1rem 4rem}}
+.page{display:flex;flex-direction:column;gap:2.5rem}
+@media(min-width:900px){.page{gap:3rem}}
+
+.page-head h1{
+  font-family:var(--font-display);font-size:clamp(1.75rem,3.5vw,2.25rem);font-weight:700;
+  letter-spacing:-.01em;color:var(--fg)
+}
+.page-head p{margin-top:.35rem;color:var(--muted);font-size:1.0625rem}
+
+/* ---------- Stat Bento (4 cells) ---------- */
+.stat-bento{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+@media(min-width:700px){.stat-bento{grid-template-columns:repeat(4,1fr)}}
+.stat-cell{
+  padding:1.25rem;background:var(--surface);border-radius:var(--radius-md);
+  border:1px solid var(--border-light);display:flex;flex-direction:column;gap:.6rem
+}
+.stat-cell__icon{
+  width:34px;height:34px;border-radius:50%;background:var(--surface-elevated);
+  color:var(--teal);display:flex;align-items:center;justify-content:center
+}
+.stat-cell__icon svg{width:17px;height:17px}
+.stat-cell.accent{background:var(--teal)}
+.stat-cell.accent .stat-cell__icon{background:rgba(255,255,255,0.15);color:#fff}
+.stat-cell.accent .stat-cell__num,.stat-cell.accent .stat-cell__label{color:#fff}
+.stat-cell__num{font-family:var(--font-display);font-weight:700;font-size:1.75rem;letter-spacing:-.01em;color:var(--fg)}
+.stat-cell__label{font-size:.75rem;color:var(--muted);letter-spacing:.02em}
+
+/* ---------- Chart Card ---------- */
+.chart-card{
+  background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border-light);
+  padding:1.75rem
+}
+.chart-card h2{
+  font-family:var(--font-display);font-size:1.125rem;font-weight:600;color:var(--fg);margin-bottom:1.25rem
+}
+.chart-svg{width:100%;height:180px}
+.chart-line{fill:none;stroke:var(--teal);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.chart-area{fill:url(#chart-grad);opacity:.5}
+.chart-dot{fill:var(--teal)}
+.chart-labels{display:flex;justify-content:space-between;margin-top:.5rem}
+.chart-labels span{font-family:var(--font-mono);font-size:.65rem;color:var(--muted)}
+
+/* ---------- Session Grid (reused card language) ---------- */
+.section-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1rem}
+.section-header h2{font-family:var(--font-display);font-size:1.375rem;font-weight:600;letter-spacing:-.01em;color:var(--fg)}
+.session-grid{display:grid;gap:1rem}
+@media(min-width:600px){.session-grid{grid-template-columns:1fr 1fr}}
+.session-card a{
+  display:flex;flex-direction:column;gap:.5rem;padding:1.25rem;background:var(--surface);
+  border-radius:var(--radius-md);border:1px solid var(--border-light);text-decoration:none;color:inherit;
+  transition:border-color 200ms var(--ease-out),box-shadow 200ms var(--ease-out);position:relative
+}
+.session-card a:hover{border-color:var(--border);box-shadow:0 4px 20px rgba(26,122,107,0.08)}
+.s-card__head{display:flex;align-items:center;gap:.5rem}
+.score-dot{width:8px;height:8px;border-radius:50%;flex:none}
+.score-dot.hi{background:var(--hi)}
+.score-dot.mid{background:var(--mid)}
+.score-dot.lo{background:var(--lo)}
+.s-card__sent{font-size:.9375rem;font-weight:500;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-card__meta{font-size:.7rem;color:var(--muted)}
+.s-card__score-row{display:flex;align-items:center;gap:.6rem}
+.s-card__bar{flex:1;height:5px;background:var(--border-light);border-radius:99px;overflow:hidden}
+.s-card__fill{height:100%;border-radius:99px}
+.s-card__fill.hi{background:var(--hi)}
+.s-card__fill.mid{background:var(--mid)}
+.s-card__fill.lo{background:var(--lo)}
+.s-card__score{font-family:var(--font-mono);font-size:.75rem;font-weight:600;color:var(--muted);flex:none;width:2rem;text-align:right}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<a class="skip-nav" href="#main">Saltar al contenido</a>
+
+<div class="topbar-wrap">
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="wordmark" href="echo-home-fresco.html">ECHO</a>
+      <nav class="topbar-nav" aria-label="Navegaci&oacute;n principal">
+        <a href="echo-home-fresco.html">Inicio</a>
+        <a href="echo-practice-fresco.html">Practicar</a>
+        <a href="echo-progress-fresco.html" aria-current="page">Progreso</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-toggle" data-theme-btn aria-label="Cambiar tema">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+</div>
+
+<main id="main">
+<div class="page">
+
+  <div class="page-head">
+    <h1>Tu progreso</h1>
+    <p>Sigue el rumbo de tu pronunciaci&oacute;n</p>
+  </div>
+
+  <section class="stat-bento" aria-label="Resumen de progreso">
+    <div class="stat-cell accent">
+      <span class="stat-cell__icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8 6 6 10 6 14a6 6 0 0 0 12 0c0-4-2-8-6-12zM8 14c0-2 .5-4 2-6l2 2-1 3h2l-1 4h3c0 2-1 4-3 4s-4-2-4-7z"/></svg>
+      </span>
+      <span class="stat-cell__num">12</span>
+      <span class="stat-cell__label">d&iacute;as de racha</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-cell__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 5H4a2 2 0 0 0 2 4M17 5h3a2 2 0 0 1-2 4"/></svg>
+      </span>
+      <span class="stat-cell__num">Nivel 4</span>
+      <span class="stat-cell__label">practicante</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-cell__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </span>
+      <span class="stat-cell__num">47</span>
+      <span class="stat-cell__label">sesiones</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-cell__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-4 4"/></svg>
+      </span>
+      <span class="stat-cell__num">78%</span>
+      <span class="stat-cell__label">precisi&oacute;n media</span>
+    </div>
+  </section>
+
+  <section class="chart-card" aria-label="Evoluci&oacute;n de puntaje">
+    <h2>&Uacute;ltimos 7 d&iacute;as</h2>
+    <svg class="chart-svg" viewBox="0 0 560 180" preserveAspectRatio="none" role="img" aria-label="Gr&aacute;fico de puntaje diario, tendencia ascendente de 64 a 82">
+      <defs>
+        <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--teal)" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="var(--teal)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="chart-area" d="M0 116 L93 100 L187 108 L280 72 L373 84 L467 48 L560 36 L560 180 L0 180 Z"/>
+      <path class="chart-line" d="M0 116 L93 100 L187 108 L280 72 L373 84 L467 48 L560 36"/>
+      <circle class="chart-dot" cx="0" cy="116" r="4"/>
+      <circle class="chart-dot" cx="93" cy="100" r="4"/>
+      <circle class="chart-dot" cx="187" cy="108" r="4"/>
+      <circle class="chart-dot" cx="280" cy="72" r="4"/>
+      <circle class="chart-dot" cx="373" cy="84" r="4"/>
+      <circle class="chart-dot" cx="467" cy="48" r="4"/>
+      <circle class="chart-dot" cx="560" cy="36" r="4.5"/>
+    </svg>
+    <div class="chart-labels">
+      <span>13 jul</span><span>14 jul</span><span>15 jul</span><span>16 jul</span><span>17 jul</span><span>18 jul</span><span>19 jul</span>
+    </div>
+  </section>
+
+  <section aria-labelledby="recent-label">
+    <div class="section-header">
+      <h2 id="recent-label">Sesiones recientes</h2>
+    </div>
+    <div class="session-grid">
+      <div class="session-card">
+        <a href="echo-results-fresco.html?lang=en">
+          <div class="s-card__head">
+            <span class="score-dot mid" aria-hidden="true"></span>
+            <span class="s-card__sent">I would like a cup of coffee, please.</span>
+          </div>
+          <span class="s-card__meta">Ingl&eacute;s &middot; hoy, 09:41</span>
+          <div class="s-card__score-row">
+            <div class="s-card__bar"><div class="s-card__fill mid" style="width:74%"></div></div>
+            <span class="s-card__score">74</span>
+          </div>
+        </a>
+      </div>
+      <div class="session-card">
+        <a href="echo-results-fresco.html?lang=es">
+          <div class="s-card__head">
+            <span class="score-dot hi" aria-hidden="true"></span>
+            <span class="s-card__sent">&iquest;D&oacute;nde est&aacute; la estaci&oacute;n de tren?</span>
+          </div>
+          <span class="s-card__meta">Espa&ntilde;ol &middot; ayer, 18:02</span>
+          <div class="s-card__score-row">
+            <div class="s-card__bar"><div class="s-card__fill hi" style="width:88%"></div></div>
+            <span class="s-card__score">88</span>
+          </div>
+        </a>
+      </div>
+      <div class="session-card">
+        <a href="echo-results-fresco.html?lang=zh">
+          <div class="s-card__head">
+            <span class="score-dot mid" aria-hidden="true"></span>
+            <span class="s-card__sent">&#x4F60;&#x597D;&#x5417;</span>
+          </div>
+          <span class="s-card__meta">Mandar&iacute;n &middot; ayer, 12:20</span>
+          <div class="s-card__score-row">
+            <div class="s-card__bar"><div class="s-card__fill mid" style="width:82%"></div></div>
+            <span class="s-card__score">82</span>
+          </div>
+        </a>
+      </div>
+      <div class="session-card">
+        <a href="echo-results-fresco.html?lang=en">
+          <div class="s-card__head">
+            <span class="score-dot lo" aria-hidden="true"></span>
+            <span class="s-card__sent">She sells seashells by the seashore.</span>
+          </div>
+          <span class="s-card__meta">Ingl&eacute;s &middot; 17 jul, 08:15</span>
+          <div class="s-card__score-row">
+            <div class="s-card__bar"><div class="s-card__fill lo" style="width:61%"></div></div>
+            <span class="s-card__score">61</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer style="text-align:center">
+    <span style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.04em;color:var(--muted)">DATOS SIMULADOS &middot; la API real expone racha, nivel, sesiones y precisi&oacute;n</span>
+  </footer>
+
+</div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var themeBtn = document.querySelector('[data-theme-btn]');
+  var savedTheme = 'system';
+  try { savedTheme = localStorage.getItem('echo-theme') || 'system'; } catch (e) {}
+  function applyTheme(choice) {
+    if (choice === 'system') { document.documentElement.removeAttribute('data-theme'); }
+    else { document.documentElement.setAttribute('data-theme', choice); }
+    try { localStorage.setItem('echo-theme', choice); } catch (e) {}
+  }
+  applyTheme(savedTheme);
+  themeBtn.addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme') || 'system';
+    var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var isLight = cur === 'light' || (cur === 'system' && !isDark);
+    applyTheme(isLight ? 'dark' : 'light');
+  });
+})();
+</script>
+</body>
+</html>

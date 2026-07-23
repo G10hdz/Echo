@@ -80,7 +80,17 @@ body{
   font-family:var(--font-display);font-size:1.05rem;font-weight:700;
   letter-spacing:.08em;color:var(--teal);text-decoration:none
 }
-.topbar-right{display:flex;align-items:center;gap:.5rem}
+.topbar-left{display:flex;align-items:center;gap:1.25rem;min-width:0}
+.topbar-nav{display:none;gap:.15rem}
+@media(min-width:640px){.topbar-nav{display:flex}}
+.topbar-nav a{
+  padding:.4rem .8rem;border-radius:999px;font-size:.8125rem;font-weight:500;
+  color:var(--muted);text-decoration:none;white-space:nowrap;
+  transition:background 150ms var(--ease-out),color 150ms var(--ease-out)
+}
+.topbar-nav a:hover{background:var(--surface-elevated);color:var(--fg)}
+.topbar-nav a[aria-current="page"]{background:var(--teal);color:#fff}
+.topbar-right{display:flex;align-items:center;gap:.5rem;flex:none}
 .streak-badge{
   display:flex;align-items:center;gap:.35rem;
   padding:.35rem .65rem .35rem .5rem;
@@ -360,7 +370,14 @@ main{max-width:1080px;margin:0 auto;padding:2rem 1.5rem 5rem}
 
 <div class="topbar-wrap">
   <header class="topbar" data-od-id="topbar">
-    <a class="wordmark" href="index.html">ECHO</a>
+    <div class="topbar-left">
+      <a class="wordmark" href="echo-home-fresco.html">ECHO</a>
+      <nav class="topbar-nav" aria-label="Navegaci&oacute;n principal">
+        <a href="echo-home-fresco.html" aria-current="page">Inicio</a>
+        <a href="echo-practice-fresco.html">Practicar</a>
+        <a href="echo-progress-fresco.html">Progreso</a>
+      </nav>
+    </div>
     <div class="topbar-right">
       <div class="streak-badge" data-od-id="streak-badge" aria-label="Racha de 12 d&iacute;as">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8 6 6 10 6 14a6 6 0 0 0 12 0c0-4-2-8-6-12zM8 14c0-2 .5-4 2-6l2 2-1 3h2l-1 4h3c0 2-1 4-3 4s-4-2-4-7z"/></svg>
@@ -384,7 +401,7 @@ main{max-width:1080px;margin:0 auto;padding:2rem 1.5rem 5rem}
       <h1 id="greeting-title">Buenas tardes.</h1>
       <p class="hero-sub">Tu o&iacute;do ya sabe lo que toca. Dos minutos y lo tienes.</p>
       <div class="cta-group">
-        <a class="btn-primary" id="practice-cta" data-od-id="practice-cta" href="echo-redesign-practice-v2.html">
+        <a class="btn-primary" id="practice-cta" data-od-id="practice-cta" href="echo-practice-fresco.html">
           <span id="practice-cta-label">Practicar ahora</span>
           <span class="btn-icon-wrap" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -451,7 +468,7 @@ main{max-width:1080px;margin:0 auto;padding:2rem 1.5rem 5rem}
     </div>
     <div class="session-grid">
       <div class="session-card" data-od-id="session-row-1">
-        <a href="echo-redesign-practice-v2.html?lang=en">
+        <a href="echo-results-fresco.html?lang=en">
           <div class="s-card__head">
             <span class="score-dot mid" aria-hidden="true"></span>
             <span class="s-card__sent">I would like a cup of coffee, please.</span>
@@ -465,7 +482,7 @@ main{max-width:1080px;margin:0 auto;padding:2rem 1.5rem 5rem}
         </a>
       </div>
       <div class="session-card" data-od-id="session-row-2">
-        <a href="echo-redesign-practice-v2.html?lang=es">
+        <a href="echo-results-fresco.html?lang=es">
           <div class="s-card__head">
             <span class="score-dot hi" aria-hidden="true"></span>
             <span class="s-card__sent">&iquest;D&oacute;nde est&aacute; la estaci&oacute;n de tren?</span>
@@ -479,7 +496,7 @@ main{max-width:1080px;margin:0 auto;padding:2rem 1.5rem 5rem}
         </a>
       </div>
       <div class="session-card" data-od-id="session-row-3">
-        <a href="echo-redesign-practice-v2.html?lang=zh">
+        <a href="echo-results-fresco.html?lang=zh">
           <div class="s-card__head">
             <span class="score-dot mid" aria-hidden="true"></span>
             <span class="s-card__sent lang-zh">&#x4F60;&#x597D;&#x5417;</span>
@@ -493,7 +510,7 @@ main{max-width:1080px;margin:0 auto;padding:2rem 1.5rem 5rem}
         </a>
       </div>
       <div class="session-card" data-od-id="session-row-4">
-        <a href="echo-redesign-practice-v2.html?lang=en">
+        <a href="echo-results-fresco.html?lang=en">
           <div class="s-card__head">
             <span class="score-dot lo" aria-hidden="true"></span>
             <span class="s-card__sent">She sells seashells by the seashore.</span>
@@ -575,7 +592,7 @@ main{max-width:1080px;margin:0 auto;padding:2rem 1.5rem 5rem}
     if (!COPY[code]) code = 'en';
     langBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === code)); });
     $('practice-cta-label').textContent = COPY[code].cta;
-    $('practice-cta').setAttribute('href', 'echo-redesign-practice-v2.html?lang=' + code);
+    $('practice-cta').setAttribute('href', 'echo-practice-fresco.html?lang=' + code);
     try { localStorage.setItem('echo-lang', code); } catch (e) {}
   }
   langBtns.forEach(function (b) { b.addEventListener('click', function () { applyLang(b.dataset.lang); }); });

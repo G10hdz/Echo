@@ -7,7 +7,7 @@ import { MicRecorder } from '../components/MicRecorder';
 import { ScoreDisplay } from '../components/ScoreDisplay';
 import * as api from '../services/api';
 import type { ScoreResponse, SentenceRecord } from '../types';
-import { Mic, Loader2, AlertTriangle, RotateCcw, Sparkles } from 'lucide-react';
+import { Loader2, AlertTriangle, RotateCcw, Sparkles } from 'lucide-react';
 
 export function PracticePage() {
   const navigate = useNavigate();
@@ -138,7 +138,7 @@ export function PracticePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 md:px-8 py-8 md:py-12">
+    <div className="practice-page">
       {/* Error toast */}
       <AnimatePresence>
         {error && (
@@ -165,7 +165,7 @@ export function PracticePage() {
         )}
       </AnimatePresence>
 
-      <div className="space-y-8">
+      <div className="contents">
         {/* Sentence prompt */}
         <AnimatePresence mode="wait">
           {currentSentence && (
@@ -190,7 +190,7 @@ export function PracticePage() {
 
         {/* Recording area */}
         <motion.div
-          className="card flex flex-col items-center"
+          className="contents"
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
@@ -216,7 +216,7 @@ export function PracticePage() {
           <AnimatePresence>
             {audioBlob && !score && (
               <motion.div
-                className="w-full px-6 pb-6 -mt-2"
+                className="w-full pb-6 -mt-2"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 12 }}
@@ -225,13 +225,8 @@ export function PracticePage() {
                 <motion.button
                   onClick={handleProcessRecording}
                   disabled={processing}
-                  className="w-full flex items-center justify-center gap-2 text-lg py-4 rounded-xl font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--accent)]"
-                  style={{
-                    backgroundColor: 'var(--accent)',
-                    color: 'white',
-                    boxShadow: '0 4px 16px rgba(196, 93, 62, 0.25)',
-                  }}
-                  whileHover={{ scale: 1.02, boxShadow: '0 6px 24px rgba(196, 93, 62, 0.35)' }}
+                className="analyze-btn"
+                  whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
                   aria-label="Analyze your pronunciation"
                 >
@@ -288,21 +283,14 @@ export function PracticePage() {
             !audioBlob && (
               <motion.div
                 key="empty"
-                className="card flex items-center justify-center py-12"
+                className="practice-chips py-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="text-center" style={{ color: 'var(--on-surface-variant)' }}>
-                  <Mic size={56} className="mx-auto mb-4 opacity-25" aria-hidden="true" />
-                  <p className="text-lg font-medium mb-1" style={{ color: 'var(--on-surface)' }}>
-                    Record your voice to see your score
-                  </p>
-                  <p className="text-sm" style={{ opacity: 0.7 }}>
-                    Tap the microphone button and read the sentence aloud
-                  </p>
-                </div>
+                <span className="practice-chip">Ready to record</span>
+                <span className="practice-chip">Read the sentence, then analyze</span>
               </motion.div>
             )
           )}

@@ -225,7 +225,7 @@ function AppLayout() {
       {!isOnboarding && <Sidebar />}
       <main
         id="main-content"
-        className={isOnboarding ? 'min-h-screen' : 'md:ml-[var(--sidebar-width)] min-h-screen pt-14 md:pt-0'}
+        className={isOnboarding ? 'min-h-screen' : 'min-h-screen'}
       >
         <div className="max-w-[var(--content-max)] mx-auto">
           <AnimatedRoutes />

@@ -17,6 +17,7 @@ frontend/.tmp/
 
 # Secrets / local env
 .env
+.superpowers/
 .env.local
 frontend/.env.production
 
