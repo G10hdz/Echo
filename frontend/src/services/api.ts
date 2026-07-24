@@ -199,7 +199,7 @@ export async function completePracticeSession(
 }
 
 export async function getProgress(userId: string): Promise<ProgressResponse> {
-  const response = await fetchWithRetry(`${API_BASE}/progress/${userId}`, {});
+  const response = await fetchWithRetry(`${API_BASE}/progress/${userId}`, {}, 0);
 
   if (!response.ok) {
     throw new ApiError(

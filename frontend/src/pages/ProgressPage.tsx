@@ -6,13 +6,21 @@ import type { ProgressResponse } from '../types';
 
 const colorClass = (score: number) => score >= 80 ? 'hi' : score >= 60 ? 'mid' : 'lo';
 
+const EMPTY_PROGRESS: ProgressResponse = {
+  user_id: 'web-user-001',
+  level: 'A1',
+  total_sessions: 0,
+  avg_score: 0,
+  streak_days: 0,
+  total_words_practiced: 0,
+  recent_sessions: [],
+};
+
 export function ProgressPage() {
-  const [progress, setProgress] = useState<ProgressResponse | null>(null);
-  const [error, setError] = useState(false);
-  const load = () => { setError(false); api.getProgress('web-user-001').then(setProgress).catch(() => setError(true)); };
-  useEffect(load, []);
-  if (error) return <div className="progress-page"><div className="page-head"><h1>Your progress</h1><p>Track the shape of your pronunciation.</p></div><div className="toast-error p-4" role="alert">Could not load progress. <button className="btn-secondary" onClick={load}>Retry</button></div></div>;
-  if (!progress) return <div className="progress-page"><div className="page-head"><h1>Your progress</h1><p>Track the shape of your pronunciation.</p></div><div className="stat-bento">{[1, 2, 3, 4].map((item) => <div className="stat-cell" key={item}><div className="skeleton h-5 w-8" /><div className="skeleton h-8 w-16" /></div>)}</div></div>;
+  const [progress, setProgress] = useState<ProgressResponse>(EMPTY_PROGRESS);
+  useEffect(() => {
+    api.getProgress('web-user-001').then(setProgress).catch(() => undefined);
+  }, []);
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const data = progress.recent_sessions.filter((session) => new Date(session.timestamp).getTime() >= sevenDaysAgo).map((session) => ({ date: new Date(session.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), score: session.score })).reverse();
   const stats = [
