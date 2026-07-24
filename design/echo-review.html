@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Echo · Repasar</title>
+  <link rel="stylesheet" href="echo-fresco-ui.css">
+  <style>
+    .review-shell{max-width:820px;margin-inline:auto}.review-head{margin-bottom:1.5rem}.review-list{display:grid;gap:.75rem;margin-top:1.25rem}.review-item{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:1rem;padding:1rem;border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--surface)}.review-index{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface-elevated);color:var(--muted);font-family:var(--font-mono);font-size:.7rem}.review-item h2{margin:0;font-size:.95rem;font-weight:600}.review-item p{margin:.18rem 0 0;color:var(--muted);font-size:.78rem}.review-actions{display:flex;gap:.5rem;flex-wrap:wrap}.review-actions .btn{min-height:44px;padding:.55rem .85rem;font-size:.8rem}.state-box{padding:2rem 1rem;border:1px dashed var(--border);border-radius:var(--radius-lg);text-align:center;color:var(--muted)}.state-box h2{margin:0;color:var(--fg);font-family:var(--font-display);font-size:1.3rem}.state-box p{max-width:45ch;margin:.45rem auto 1rem;font-size:.86rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.btn:disabled{cursor:not-allowed;opacity:.48;transform:none;box-shadow:none}@media(max-width:720px){.review-head{margin-top:2.25rem}.review-item{grid-template-columns:auto 1fr}.review-actions{grid-column:1/-1}.review-actions .btn{flex:1}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Saltar al contenido</a>
+  <div class="shell">
+    <div class="topbar-wrap"><header class="topbar" data-od-id="review-topbar"><a class="brand" href="echo-home-fresco.html">ECHO</a><nav class="nav" aria-label="Principal"><a href="echo-home-fresco.html">Inicio</a><a href="echo-library.html">Biblioteca</a><a href="echo-review.html" aria-current="page">Repasar</a><a href="echo-history.html">Historial</a><a href="echo-profile.html">Perfil</a><a href="echo-audio-privacy.html">Ajustes</a></nav><button class="icon-btn" data-theme-toggle aria-label="Cambiar tema">◐</button></header></div>
+    <main id="main" class="review-shell">
+      <header class="page-head review-head" data-od-id="review-heading"><p class="eyebrow">Cola de repaso</p><h1>Vuelve solo a lo que pidió otra toma.</h1><p class="lede">No es una lista de errores: son frases que pueden sonar más naturales con un minuto más.</p></header>
+      <section class="doppel" data-od-id="review-queue" aria-labelledby="queue-title">
+        <div class="panel">
+          <h2 class="section-title" id="queue-title">Para hoy</h2><p class="subtle" id="queue-status" aria-live="polite">Cargando cola de repaso…</p>
+          <div class="review-list hidden" id="review-list" aria-busy="true">
+            <article class="review-item" data-od-id="review-coffee" data-review-item><span class="review-index">01</span><div><h2>coffee</h2><p>Inglés · vocal corta · sesión de hoy</p></div><div class="review-actions"><button class="btn retry" type="button">Practicar</button><button class="btn complete" type="button">Ya la domino</button></div></article>
+            <article class="review-item" data-od-id="review-station" data-review-item><span class="review-index">02</span><div><h2>estación</h2><p>Español · acento tónico · sesión de ayer</p></div><div class="review-actions"><button class="btn retry" type="button">Practicar</button><button class="btn complete" type="button">Ya la domino</button></div></article>
+            <article class="review-item" data-od-id="review-seashore" data-review-item><span class="review-index">03</span><div><h2>seashore</h2><p>Inglés · consonantes seguidas · última semana</p></div><div class="review-actions"><button class="btn retry" type="button">Practicar</button><button class="btn complete" type="button">Ya la domino</button></div></article>
+          </div>
+          <div class="state-box hidden" id="review-empty" data-od-id="review-empty"><h2>No tienes nada pendiente.</h2><p>La cola vuelve a llenarse solo cuando una frase pide atención. Mientras tanto, puedes explorar algo nuevo.</p><a class="btn btn-primary" href="echo-library.html">Ir a la biblioteca <span class="round">→</span></a></div>
+          <div class="state-box hidden" id="review-error" role="alert" data-od-id="review-error"><h2>No pudimos cargar tu cola.</h2><p>Comprueba tu conexión e inténtalo de nuevo.</p><button class="btn" id="retry-queue" type="button">Reintentar</button></div>
+          <p class="demo-note">COLA DE DEMOSTRACIÓN · La versión real se genera a partir de tus sesiones.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script>
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => [...document.querySelectorAll(selector)];
+    const themeKey = 'echo-theme';
+    const prefersDark = () => !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    let savedTheme = 'system';
+    try { savedTheme = localStorage.getItem(themeKey) || 'system'; } catch (error) {}
+    document.documentElement.dataset.theme = (savedTheme === 'dark' || (savedTheme !== 'light' && prefersDark())) ? 'dark' : 'light';
+    $('[data-theme-toggle]').addEventListener('click', () => { const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = nextTheme; try { localStorage.setItem(themeKey, nextTheme); } catch (error) {} });
+    function renderQueue(kind) {
+      $('#review-list').classList.toggle('hidden', kind !== 'ready');
+      $('#review-empty').classList.toggle('hidden', kind !== 'empty');
+      $('#review-error').classList.toggle('hidden', kind !== 'error');
+      $('#review-list').setAttribute('aria-busy', String(kind === 'loading'));
+      const left = $$('[data-review-item]').length;
+      if (kind === 'ready') $('#queue-status').textContent = left === 1 ? '1 frase para repasar' : left + ' frases para repasar';
+      if (kind === 'empty') $('#queue-status').textContent = 'Cola resuelta';
+      if (kind === 'loading') $('#queue-status').textContent = 'Cargando cola de repaso…';
+    }
+    function loadQueue() { renderQueue('loading'); window.setTimeout(() => { if (navigator.onLine === false) { renderQueue('error'); return; } renderQueue($$('[data-review-item]').length ? 'ready' : 'empty'); }, 180); }
+    $$('.retry').forEach(button => button.addEventListener('click', () => { $('.toast').textContent = 'Abriendo una práctica breve.'; $('.toast').classList.add('show'); window.setTimeout(() => { window.location.href = 'echo-redesign-practice-v2.html'; }, 280); }));
+    $$('.complete').forEach(button => button.addEventListener('click', () => { button.closest('[data-review-item]').remove(); renderQueue($$('[data-review-item]').length ? 'ready' : 'empty'); }));
+    $('#retry-queue').addEventListener('click', loadQueue);
+    loadQueue();
+  </script>
+</body>
+</html>

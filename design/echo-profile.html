@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Echo · Perfil y metas</title>
+  <link rel="stylesheet" href="echo-fresco-ui.css">
+  <style>
+    .profile-shell{max-width:940px;margin-inline:auto}.profile-head{margin-bottom:1.5rem}.save-message{min-height:1.4em}.inline-error{margin-top:1rem;padding:.85rem 1rem;border-radius:var(--radius-md);background:color-mix(in oklch,var(--reward) 14%,var(--surface));font-size:.86rem}.goal[role="progressbar"]{display:block}.goal-progress{display:flex;justify-content:space-between;gap:1rem;align-items:baseline}.goal-progress strong{font-family:var(--font-mono);font-size:.78rem;color:var(--fg)}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.btn:disabled{cursor:not-allowed;opacity:.48;transform:none;box-shadow:none}.btn[aria-busy="true"]{pointer-events:none}@media(max-width:720px){.profile-head{margin-top:2.25rem}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Saltar al contenido</a>
+  <div class="shell">
+    <div class="topbar-wrap">
+      <header class="topbar" data-od-id="profile-topbar">
+        <a class="brand" href="echo-home-fresco.html">ECHO</a>
+        <nav class="nav" aria-label="Principal"><a href="echo-home-fresco.html">Inicio</a><a href="echo-library.html">Biblioteca</a><a href="echo-review.html">Repasar</a><a href="echo-history.html">Historial</a><a href="echo-profile.html" aria-current="page">Perfil</a><a href="echo-audio-privacy.html">Ajustes</a></nav>
+        <button class="icon-btn" data-theme-toggle aria-label="Cambiar tema">◐</button>
+      </header>
+    </div>
+
+    <main id="main" class="profile-shell">
+      <header class="page-head profile-head" data-od-id="profile-heading">
+        <p class="eyebrow">Perfil y metas</p>
+        <h1>Un ritmo que se adapta a tu vida.</h1>
+        <p class="lede">Ajusta tu compromiso diario y mira el progreso sin convertirlo en presión.</p>
+      </header>
+
+      <section class="profile-grid" data-od-id="profile-overview">
+        <article class="doppel">
+          <div class="panel identity">
+            <div class="avatar" aria-hidden="true">A</div>
+            <div><h2>Alex</h2><p class="meta">Practicante · Inglés como prioridad</p></div>
+            <div class="callout"><b>Racha actual</b><br>3 días seguidos. Hoy ya hiciste espacio para tu voz.</div>
+          </div>
+        </article>
+        <article class="doppel">
+          <div class="panel">
+            <h2 class="section-title">Meta diaria</h2>
+            <p class="subtle">Cuando se cumpla, Echo deja de empujar por hoy.</p>
+            <div class="field-group">
+              <label class="field-label" for="minutes">Minutos de práctica</label>
+              <div class="range-row"><input id="minutes" type="range" min="2" max="15" value="5" aria-describedby="minutes-help"><output class="range-value" for="minutes" id="minutes-value">5 min</output></div>
+              <span class="subtle" id="minutes-help">Elige un mínimo que puedas repetir mañana.</span>
+            </div>
+            <div class="field-group">
+              <span class="field-label">Tipo de avance</span>
+              <div class="segmented" role="group" aria-label="Tipo de avance" data-od-id="progress-type">
+                <button class="segment" type="button" aria-pressed="true" data-value="Constancia">Constancia</button>
+                <button class="segment" type="button" aria-pressed="false" data-value="Precisión">Precisión</button>
+                <button class="segment" type="button" aria-pressed="false" data-value="Vocabulario">Vocabulario</button>
+              </div>
+            </div>
+            <div class="actions">
+              <span class="subtle save-message" id="save-state" aria-live="polite">Sin cambios pendientes</span>
+              <button class="btn btn-primary" id="save" type="button">Guardar meta <span class="round">→</span></button>
+            </div>
+            <div class="inline-error hidden" id="save-error" role="alert">No pudimos guardar la meta. Puedes intentarlo otra vez.</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="doppel" style="margin-top:1.25rem" data-od-id="goals-and-achievements" aria-labelledby="week-title">
+        <div class="panel">
+          <h2 class="section-title" id="week-title">Esta semana</h2>
+          <p class="subtle">Un vistazo breve para decidir dónde quieres poner atención.</p>
+          <div class="goal-list">
+            <div class="goal" role="progressbar" aria-label="Sesiones completadas" aria-valuemin="0" aria-valuemax="5" aria-valuenow="3"><div class="goal-progress"><span><b>Sesiones completadas</b><br><small>3 de 5 días</small></span><strong>60%</strong></div><div class="bar"><i style="width:60%"></i></div></div>
+            <div class="goal" role="progressbar" aria-label="Frases practicadas" aria-valuemin="0" aria-valuemax="20" aria-valuenow="12"><div class="goal-progress"><span><b>Frases practicadas</b><br><small>12 de 20 frases</small></span><strong>12</strong></div><div class="bar"><i style="width:60%"></i></div></div>
+            <div class="goal" role="progressbar" aria-label="Precisión media" aria-valuemin="0" aria-valuemax="100" aria-valuenow="78"><div class="goal-progress"><span><b>Precisión media</b><br><small>Objetivo: 80%</small></span><strong>78%</strong></div><div class="bar"><i style="width:78%"></i></div></div>
+          </div>
+          <div class="callout"><b>Próximo logro</b><br>Completa dos sesiones más para cerrar una semana de práctica constante.</div>
+        </div>
+      </section>
+      <p class="demo-note">DATOS DE DEMOSTRACIÓN · La meta se conserva localmente en esta maqueta.</p>
+    </main>
+  </div>
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script>
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => [...document.querySelectorAll(selector)];
+    const themeKey = 'echo-theme';
+    const goalKey = 'echo-goal';
+    const state = { minutes: 5, type: 'Constancia' };
+    const prefersDark = () => !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    let savedTheme = 'system';
+    try { savedTheme = localStorage.getItem(themeKey) || 'system'; } catch (error) {}
+    document.documentElement.dataset.theme = (savedTheme === 'dark' || (savedTheme !== 'light' && prefersDark())) ? 'dark' : 'light';
+    $('[data-theme-toggle]').addEventListener('click', () => {
+      const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = nextTheme;
+      try { localStorage.setItem(themeKey, nextTheme); } catch (error) {}
+    });
+
+    const minutes = $('#minutes');
+    const output = $('#minutes-value');
+    try { state.minutes = Number(localStorage.getItem(goalKey)) || 5; } catch (error) {}
+    minutes.value = state.minutes;
+    output.textContent = state.minutes + ' min';
+    function markPending() { $('#save-state').textContent = 'Cambios sin guardar'; $('#save-error').classList.add('hidden'); }
+    minutes.addEventListener('input', () => { state.minutes = Number(minutes.value); output.textContent = state.minutes + ' min'; markPending(); });
+    $$('.segment').forEach(button => button.addEventListener('click', () => {
+      $$('.segment').forEach(item => item.setAttribute('aria-pressed', 'false'));
+      button.setAttribute('aria-pressed', 'true'); state.type = button.dataset.value; markPending();
+    }));
+    $('#save').addEventListener('click', () => {
+      const save = $('#save'); save.disabled = true; save.setAttribute('aria-busy', 'true'); save.textContent = 'Guardando…';
+      try {
+        localStorage.setItem(goalKey, String(state.minutes));
+        localStorage.setItem('echo-goal-type', state.type);
+        $('#save-state').textContent = 'Meta guardada';
+        $('.toast').textContent = 'Tu ritmo diario se actualizó.'; $('.toast').classList.add('show');
+        window.setTimeout(() => $('.toast').classList.remove('show'), 1800);
+      } catch (error) {
+        $('#save-error').classList.remove('hidden'); $('#save-state').textContent = 'La meta no se guardó';
+      } finally {
+        save.disabled = false; save.removeAttribute('aria-busy'); save.innerHTML = 'Guardar meta <span class="round">→</span>';
+      }
+    });
+  </script>
+</body>
+</html>

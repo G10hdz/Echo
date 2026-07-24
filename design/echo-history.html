@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Echo · Historial</title>
+  <link rel="stylesheet" href="echo-fresco-ui.css">
+  <style>
+    .history-shell{max-width:860px;margin-inline:auto}.history-head{margin-bottom:1.5rem}.history-count{color:var(--muted);font-family:var(--font-mono);font-size:.7rem;letter-spacing:.04em}.empty-state{padding:2rem 1rem;text-align:center;border:1px dashed var(--border);border-radius:var(--radius-lg);color:var(--muted)}.empty-state h2{margin:0;color:var(--fg);font-family:var(--font-display);font-size:1.25rem;letter-spacing:-.01em}.empty-state p{margin:.45rem auto 1rem;max-width:42ch;font-size:.86rem}.inline-error{margin-top:1rem;padding:.85rem 1rem;border-radius:var(--radius-md);background:color-mix(in oklch,var(--reward) 14%,var(--surface));font-size:.86rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.session-title{display:block;font-size:.95rem;font-weight:600}@media(max-width:720px){.history-head{margin-top:2.25rem}.search{width:100%}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Saltar al contenido</a>
+  <div class="shell">
+    <div class="topbar-wrap">
+      <header class="topbar" data-od-id="history-topbar">
+        <a class="brand" href="echo-home-fresco.html">ECHO</a>
+        <nav class="nav" aria-label="Principal"><a href="echo-home-fresco.html">Inicio</a><a href="echo-library.html">Biblioteca</a><a href="echo-review.html">Repasar</a><a href="echo-history.html" aria-current="page">Historial</a><a href="echo-profile.html">Perfil</a><a href="echo-audio-privacy.html">Ajustes</a></nav>
+        <button class="icon-btn" data-theme-toggle aria-label="Cambiar tema">◐</button>
+      </header>
+    </div>
+
+    <main id="main" class="history-shell">
+      <header class="page-head history-head" data-od-id="history-heading">
+        <p class="eyebrow">Historial</p>
+        <h1>Tu voz, sesión por sesión.</h1>
+        <p class="lede">Vuelve a una frase cuando te ayude; no hace falta medirlo todo para avanzar.</p>
+      </header>
+
+      <section data-od-id="session-history" aria-labelledby="history-results">
+        <div class="list-toolbar">
+          <div class="filters" role="group" aria-label="Filtrar sesiones" data-od-id="history-filters">
+            <button class="filter" type="button" aria-pressed="true" data-filter="all">Todas</button>
+            <button class="filter" type="button" aria-pressed="false" data-filter="en">Inglés</button>
+            <button class="filter" type="button" aria-pressed="false" data-filter="es">Español</button>
+            <button class="filter" type="button" aria-pressed="false" data-filter="zh">Mandarín</button>
+          </div>
+          <div>
+            <label class="sr-only" for="search">Buscar una frase</label>
+            <input class="search" id="search" type="search" placeholder="Buscar una frase">
+          </div>
+        </div>
+        <p class="history-count" id="history-results" aria-live="polite">4 sesiones disponibles</p>
+        <div class="session-list" id="sessions" aria-describedby="history-results">
+          <button class="session" type="button" data-lang="en" data-score="74" data-duration="2 min" data-repetitions="2" data-title="I would like a cup of coffee, please."><span class="score">74</span><span><span class="session-title">I would like a cup of coffee, please.</span><p>Inglés · hoy, 09:41 · 2 min</p></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="session" type="button" data-lang="es" data-score="88" data-duration="3 min" data-repetitions="1" data-title="¿Dónde está la estación de tren?"><span class="score">88</span><span><span class="session-title">¿Dónde está la estación de tren?</span><p>Español · ayer, 18:02 · 3 min</p></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="session" type="button" data-lang="zh" data-score="82" data-duration="2 min" data-repetitions="2" data-title="你好吗"><span class="score">82</span><span><span class="session-title">你好吗</span><p>Mandarín · ayer, 12:20 · 2 min</p></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="session" type="button" data-lang="en" data-score="61" data-duration="4 min" data-repetitions="3" data-title="She sells seashells by the seashore."><span class="score">61</span><span><span class="session-title">She sells seashells by the seashore.</span><p>Inglés · 17 jul, 08:15 · 4 min</p></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+        </div>
+        <div class="empty-state hidden" id="empty-results" data-od-id="history-empty">
+          <h2>No hay sesiones que coincidan.</h2><p>Prueba otro idioma o limpia la búsqueda para volver a ver tu historial.</p><button class="btn" type="button" id="clear-filters">Limpiar filtros</button>
+        </div>
+        <div class="inline-error hidden" id="detail-error" role="alert">No pudimos abrir este detalle. Inténtalo de nuevo.</div>
+        <p class="demo-note">DATOS DE DEMOSTRACIÓN · El detalle refleja la información disponible tras cada práctica.</p>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="detail" aria-labelledby="detail-title">
+    <div class="dialog-inner">
+      <div class="dialog-head"><div><p class="eyebrow">Detalle de sesión</p><h2 class="section-title" id="detail-title"></h2></div><button class="close" id="close" type="button" aria-label="Cerrar">×</button></div>
+      <div class="detail-grid"><div><span>Puntuación</span><b id="score-detail"></b></div><div><span>Duración</span><b id="duration-detail"></b></div><div><span>Repeticiones</span><b id="repetitions-detail"></b></div></div>
+      <div class="note"><b>Comentario de práctica</b><br>Vuelve a escuchar la frase y repite despacio las palabras marcadas. No necesitas corregir todo en una sola toma.</div>
+      <div class="actions"><button class="btn" id="dismiss" type="button">Cerrar</button><a class="btn btn-primary" href="echo-redesign-practice-v2.html">Practicar de nuevo <span class="round">→</span></a></div>
+    </div>
+  </dialog>
+
+  <script>
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => [...document.querySelectorAll(selector)];
+    const themeKey = 'echo-theme';
+    let activeFilter = 'all';
+    const prefersDark = () => !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    let savedTheme = 'system';
+    try { savedTheme = localStorage.getItem(themeKey) || 'system'; } catch (error) {}
+    document.documentElement.dataset.theme = (savedTheme === 'dark' || (savedTheme !== 'light' && prefersDark())) ? 'dark' : 'light';
+    $('[data-theme-toggle]').addEventListener('click', () => {
+      const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = nextTheme;
+      try { localStorage.setItem(themeKey, nextTheme); } catch (error) {}
+    });
+
+    function filterSessions() {
+      const query = $('#search').value.trim().toLowerCase();
+      const sessions = $$('.session');
+      let visible = 0;
+      sessions.forEach(session => {
+        const matches = (activeFilter === 'all' || session.dataset.lang === activeFilter) && session.dataset.title.toLowerCase().includes(query);
+        session.hidden = !matches;
+        if (matches) visible += 1;
+      });
+      $('#history-results').textContent = visible === 1 ? '1 sesión disponible' : visible + ' sesiones disponibles';
+      $('#empty-results').classList.toggle('hidden', visible !== 0);
+    }
+
+    $$('.filter').forEach(button => button.addEventListener('click', () => {
+      $$('.filter').forEach(item => item.setAttribute('aria-pressed', 'false'));
+      button.setAttribute('aria-pressed', 'true');
+      activeFilter = button.dataset.filter;
+      filterSessions();
+    }));
+    $('#search').addEventListener('input', filterSessions);
+    $('#clear-filters').addEventListener('click', () => {
+      activeFilter = 'all'; $('#search').value = '';
+      $$('.filter').forEach(item => item.setAttribute('aria-pressed', String(item.dataset.filter === 'all')));
+      filterSessions(); $('#search').focus();
+    });
+
+    const detail = $('#detail');
+    $$('.session').forEach(session => session.addEventListener('click', () => {
+      $('#detail-error').classList.add('hidden');
+      $('#detail-title').textContent = session.dataset.title;
+      $('#score-detail').textContent = session.dataset.score + '/100';
+      $('#duration-detail').textContent = session.dataset.duration;
+      $('#repetitions-detail').textContent = session.dataset.repetitions;
+      try { detail.showModal(); } catch (error) { $('#detail-error').classList.remove('hidden'); }
+    }));
+    $('#close').addEventListener('click', () => detail.close());
+    $('#dismiss').addEventListener('click', () => detail.close());
+  </script>
+</body>
+</html>
