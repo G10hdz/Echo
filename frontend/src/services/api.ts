@@ -217,7 +217,7 @@ export async function getSentences(
   limit = 10
 ): Promise<{ sentences: SentenceRecord[] }> {
   const params = new URLSearchParams({ level, language, limit: limit.toString() });
-  const response = await fetchWithRetry(`${API_BASE}/sentences?${params}`, {});
+  const response = await fetchWithRetry(`${API_BASE}/sentences?${params}`, {}, 0);
 
   if (!response.ok) {
     throw new ApiError(

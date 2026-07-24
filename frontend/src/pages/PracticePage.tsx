@@ -9,10 +9,18 @@ import * as api from '../services/api';
 import type { ScoreResponse, SentenceRecord } from '../types';
 import { Loader2, AlertTriangle, RotateCcw, Sparkles } from 'lucide-react';
 
+const FALLBACK_SENTENCE: SentenceRecord = {
+  id: 0,
+  text: 'The weather is beautiful today',
+  language: 'en',
+  level: 'A1',
+  topic: 'weather',
+  times_practiced: 0,
+};
+
 export function PracticePage() {
   const navigate = useNavigate();
-  const [currentSentence, setCurrentSentence] = useState<SentenceRecord | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [currentSentence, setCurrentSentence] = useState<SentenceRecord>(FALLBACK_SENTENCE);
   const [processing, setProcessing] = useState(false);
   const [score, setScore] = useState<ScoreResponse | null>(null);
   const [ttsUrl, setTtsUrl] = useState<string | null>(null);
@@ -35,7 +43,6 @@ export function PracticePage() {
   const language = 'en';
 
   const loadSentence = useCallback(async () => {
-    setLoading(true);
     setError(null);
     setScore(null);
     setTtsUrl(null);
@@ -44,10 +51,8 @@ export function PracticePage() {
       if (response.sentences.length > 0) {
         setCurrentSentence(response.sentences[0]);
       }
-    } catch (err) {
-      setError('Failed to load a practice sentence. Please check your connection and try again.');
-    } finally {
-      setLoading(false);
+    } catch {
+      // The bundled sentence keeps Practice usable while the API wakes up.
     }
   }, [level, language]);
 
@@ -117,25 +122,6 @@ export function PracticePage() {
     resetRecording();
     setError(null);
   };
-
-  /* ------------------------------------------------------------------ */
-  /*  Loading skeleton                                                    */
-  /* ------------------------------------------------------------------ */
-  if (loading) {
-    return (
-      <div className="max-w-2xl mx-auto px-4 md:px-8 py-12">
-        <div className="space-y-6">
-          <div className="card">
-            <div className="skeleton" style={{ height: '2rem', width: '60%', marginBottom: '1rem' }} />
-            <div className="skeleton" style={{ height: '3rem', width: '100%' }} />
-          </div>
-          <div className="card">
-            <div className="skeleton" style={{ height: '200px', width: '100%' }} />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="practice-page">
