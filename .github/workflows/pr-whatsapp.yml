@@ -1,0 +1,58 @@
+name: Aviso de PR por WhatsApp
+
+# Manda un WhatsApp (vía CallMeBot, gratis) a los revisores cuando se abre,
+# reabre o se marca listo un Pull Request.
+#
+# Secrets gestionados en Doppler (no en GitHub). Único secret por repo:
+#   DOPPLER_TOKEN = service token (read-only) del config que contiene:
+#     WA_GIO_PHONE, WA_GIO_APIKEY, WA_LALO_PHONE, WA_LALO_APIKEY,
+#     WA_JEANETH_PHONE, WA_JEANETH_APIKEY
+#   (teléfonos con lada, sin + ni espacios; apikeys que da CallMeBot).
+# Rotación: cambiar en Doppler, sin tocar los repos.
+# Si falta DOPPLER_TOKEN o un par de valores, ese destinatario se omite.
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+jobs:
+  notify:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar WhatsApp
+        env:
+          # Env mapping (no ${{ }} inline en el run) — a prueba de inyección
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: |
+          if [ -z "$DOPPLER_TOKEN" ]; then
+            echo "sin DOPPLER_TOKEN configurado, se omite el aviso"; exit 0
+          fi
+          # Descarga los secrets del config al que está atado el service token
+          secrets_json=$(curl -sf -u "$DOPPLER_TOKEN:" \
+            "https://api.doppler.com/v3/configs/config/secrets/download?format=json") || {
+              echo "no se pudo leer Doppler"; exit 1; }
+          get() { printf '%s' "$secrets_json" | jq -r --arg k "$1" '.[$k] // ""'; }
+          GIO_PHONE=$(get WA_GIO_PHONE);       GIO_APIKEY=$(get WA_GIO_APIKEY)
+          LALO_PHONE=$(get WA_LALO_PHONE);     LALO_APIKEY=$(get WA_LALO_APIKEY)
+          JEANETH_PHONE=$(get WA_JEANETH_PHONE); JEANETH_APIKEY=$(get WA_JEANETH_APIKEY)
+
+          msg="🔔 Nuevo PR de ${PR_AUTHOR}: ${PR_TITLE} — ${PR_URL}"
+          send() {
+            local phone="$1" key="$2" who="$3"
+            if [ -z "$phone" ] || [ -z "$key" ]; then
+              echo "· $who: sin valores en Doppler, se omite"; return
+            fi
+            code=$(curl -s -o /dev/null -w '%{http_code}' -G \
+              "https://api.callmebot.com/whatsapp.php" \
+              --data-urlencode "phone=$phone" \
+              --data-urlencode "text=$msg" \
+              --data-urlencode "apikey=$key")
+            echo "· $who: HTTP $code"
+          }
+          send "$GIO_PHONE" "$GIO_APIKEY" "Gio"
+          send "$LALO_PHONE" "$LALO_APIKEY" "Lalo"
+          send "$JEANETH_PHONE" "$JEANETH_APIKEY" "Jeaneth"
