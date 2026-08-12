@@ -20,6 +20,9 @@ RUN pip install \
     --index-url https://download.pytorch.org/whl/cpu \
     --extra-index-url https://pypi.org/simple
 
+# Bake Whisper into the image so Cloud Run cold starts do not download from Hugging Face.
+RUN python -c "from faster_whisper import WhisperModel; WhisperModel('base', device='cpu', compute_type='int8')"
+
 COPY backend/ .
 
 RUN mkdir -p /app/audio_cache && chmod 777 /app/audio_cache
