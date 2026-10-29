@@ -1,12 +1,27 @@
-# Echo
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/mark-dark.svg">
+    <img src="docs/assets/mark-light.svg" alt="Echo logo" width="96">
+  </picture>
+</p>
 
-**English** · [Español](README.es.md)
+<h1 align="center">Echo</h1>
 
-Practice pronunciation against real sentences, get a per-word score, and hear how it should sound. The browser records you; a small FastAPI backend transcribes, scores, and synthesizes reference audio.
+<p align="center">
+  Practice pronunciation against real sentences, get a per-word score,<br>
+  and hear how it should sound.
+</p>
 
-**Live demo:** https://echo-pronunciation.netlify.app/
+<p align="center">
+  <a href="https://echo-pronunciation.netlify.app/">Live demo</a> ·
+  <a href="docs/ARCHITECTURE.md">Architecture</a> ·
+  <a href="docs/DEPLOY.md">Deploy</a> ·
+  <strong>English</strong> · <a href="README.es.md">Español</a>
+</p>
 
 > The demo is public and has no accounts. Sessions and progress live on an ephemeral Cloud Run filesystem and can vanish when the instance recycles.
+
+The browser records you; a small FastAPI backend transcribes, scores, and synthesizes reference audio.
 
 ## What you can do
 
@@ -17,6 +32,17 @@ Practice pronunciation against real sentences, get a per-word score, and hear ho
 - Track streaks and accuracy on the progress page
 
 ## How it works
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/echo-arch.dark.svg">
+    <img src="docs/assets/echo-arch.light.svg" alt="Echo container diagram: React SPA on Netlify, FastAPI on Cloud Run with faster-whisper, Kokoro, SQLite and the audio cache, plus ElevenLabs" width="560">
+  </picture>
+</p>
+
+<p align="center"><sub>
+  Container view, generated from the <a href="docs/assets/echo-arch.model.yaml">verified model</a> — every node and edge traces to source.
+</sub></p>
 
 1. The React SPA captures audio in the browser ([`frontend/src/hooks/useMicrophone.ts`](frontend/src/hooks/useMicrophone.ts)) and posts it to `POST /api/practice/analyze` in [`backend/main.py`](backend/main.py).
 2. The backend converts the upload with ffmpeg, transcribes it with faster-whisper ([`backend/whisper_service.py`](backend/whisper_service.py)), and scores it against the target sentence ([`backend/scoring.py`](backend/scoring.py)). Mandarin is scored per character and per tone, client-side.

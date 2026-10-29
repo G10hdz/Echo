@@ -1,12 +1,27 @@
-# Echo
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/mark-dark.svg">
+    <img src="docs/assets/mark-light.svg" alt="Logo de Echo" width="96">
+  </picture>
+</p>
 
-[Español](README.md) · **English**
+<h1 align="center">Echo</h1>
 
-Practica pronunciación con oraciones reales, obtén un score por palabra y escucha cómo debe sonar. El navegador te graba; un backend chico en FastAPI transcribe, califica y sintetiza el audio de referencia.
+<p align="center">
+  Practica pronunciación con oraciones reales, obtén un score por palabra<br>
+  y escucha cómo debe sonar.
+</p>
 
-**Demo en vivo:** https://echo-pronunciation.netlify.app/
+<p align="center">
+  <a href="https://echo-pronunciation.netlify.app/">Demo en vivo</a> ·
+  <a href="docs/ARCHITECTURE.md">Arquitectura</a> ·
+  <a href="docs/DEPLOY.md">Deploy</a> ·
+  <a href="README.md">English</a> · <strong>Español</strong>
+</p>
 
 > El demo es público y no tiene cuentas. Las sesiones y el progreso viven en un filesystem efímero de Cloud Run y pueden desaparecer cuando la instancia se recicla.
+
+El navegador te graba; un backend chico en FastAPI transcribe, califica y sintetiza el audio de referencia.
 
 ## Qué puedes hacer
 
@@ -17,6 +32,17 @@ Practica pronunciación con oraciones reales, obtén un score por palabra y escu
 - Seguir rachas y precisión en la página de progreso
 
 ## Cómo funciona
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/echo-arch.dark.es.svg">
+    <img src="docs/assets/echo-arch.light.es.svg" alt="Diagrama de contenedores de Echo: SPA React en Netlify, FastAPI en Cloud Run con faster-whisper, Kokoro, SQLite y el caché de audio, más ElevenLabs" width="560">
+  </picture>
+</p>
+
+<p align="center"><sub>
+  Vista de contenedores, generada desde el <a href="docs/assets/echo-arch.model.yaml">modelo verificado</a>: cada nodo y arista traza a código fuente.
+</sub></p>
 
 1. El SPA en React graba el audio en el navegador ([`frontend/src/hooks/useMicrophone.ts`](frontend/src/hooks/useMicrophone.ts)) y lo manda a `POST /api/practice/analyze` en [`backend/main.py`](backend/main.py).
 2. El backend convierte el audio con ffmpeg, lo transcribe con faster-whisper ([`backend/whisper_service.py`](backend/whisper_service.py)) y lo califica contra la oración objetivo ([`backend/scoring.py`](backend/scoring.py)). El mandarín se califica por carácter y por tono, del lado del cliente.
