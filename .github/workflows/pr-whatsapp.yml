@@ -32,6 +32,7 @@ jobs:
             echo "sin DOPPLER_TOKEN configurado, se omite el aviso"; exit 0
           fi
           # Descarga los secrets del config al que está atado el service token
+          # gitleaks:allow — $DOPPLER_TOKEN is an env var, not a literal credential
           secrets_json=$(curl -sf -u "$DOPPLER_TOKEN:" \
             "https://api.doppler.com/v3/configs/config/secrets/download?format=json") || {
               echo "no se pudo leer Doppler"; exit 1; }

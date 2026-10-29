@@ -1,0 +1,2 @@
+# Historical false positive: `-u "$DOPPLER_TOKEN:"` is an env var, not a literal credential.
+49264b2a35077d23d4532fa0c2f1073e1a9c5a1c:.github/workflows/pr-whatsapp.yml:curl-auth-user:35
