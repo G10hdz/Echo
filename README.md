@@ -1,122 +1,80 @@
-# Echo — Pronunciation Practice
+# Echo
 
-**Live:** https://echo-pronunciation.netlify.app/
+**English** · [Español](README.es.md)
 
-An AI-powered pronunciation practice app. Record your voice, get instant analysis, and improve your pronunciation through visual waveform comparison and phoneme-level feedback.
+Practice pronunciation against real sentences, get a per-word score, and hear how it should sound. The browser records you; a small FastAPI backend transcribes, scores, and synthesizes reference audio.
 
----
+**Live demo:** https://echo-pronunciation.netlify.app/
 
-## What it does
+> The demo is public and has no accounts. Sessions and progress live on an ephemeral Cloud Run filesystem and can vanish when the instance recycles.
 
-- Record your pronunciation of target sentences
-- Compare your waveform against a native speaker reference
-- Get a score with phoneme-level breakdown (correct / partial / missed)
-- Track progress over time with session history and streaks
-- Supports English and Spanish (Mandarin planned)
+## What you can do
 
----
+- Pick a language (English, Spanish, Mandarin) and a CEFR level on the home screen
+- Record yourself reading a sentence, get a score with word-by-word breakdown
+- Play the reference audio and compare waveforms
+- Practice Mandarin with pinyin overlay and per-syllable tone feedback
+- Track streaks and accuracy on the progress page
 
-## Tech Stack
+## How it works
 
-| Layer | Tech |
-|-------|------|
-| Frontend | React 18 + TypeScript + Vite |
-| Styling | Tailwind CSS + custom design tokens |
-| Design system | Clinical Sublime (Positronica family) |
-| Charts | Recharts |
-| Icons | Lucide React |
-| Audio | Web Audio API |
-| TTS | ElevenLabs API |
-| Deployment | Netlify |
+1. The React SPA captures audio in the browser ([`frontend/src/hooks/useMicrophone.ts`](frontend/src/hooks/useMicrophone.ts)) and posts it to `POST /api/practice/analyze` in [`backend/main.py`](backend/main.py).
+2. The backend converts the upload with ffmpeg, transcribes it with faster-whisper ([`backend/whisper_service.py`](backend/whisper_service.py)), and scores it against the target sentence ([`backend/scoring.py`](backend/scoring.py)). Mandarin is scored per character and per tone, client-side.
+3. Reference audio comes from ElevenLabs when a key is configured, otherwise local Kokoro TTS ([`backend/elevenlabs_service.py`](backend/elevenlabs_service.py), [`backend/kokoro_service.py`](backend/kokoro_service.py)). WAVs are cached under `/audio`.
+4. Sessions land in SQLite ([`backend/database.py`](backend/database.py)) and feed the progress page.
 
----
+## Run it locally
 
-## Design System
+You need Node 20+, Python 3.11+, and ffmpeg.
 
-Echo uses the **Clinical Sublime** design system — part of the Positronica Labs design family.
+```sh
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt   # includes torch; expect a large download
+cp .env.example .env              # ELEVENLABS_API_KEY optional, falls back to Kokoro
 
-- **Colors:** Lavender `#C4B5E3` primary, biological pink accent, synthetic green, quantum gold
-- **Typography:** Orbitron (headlines, uppercase) + Inter (body)
-- **Surfaces:** Pure white background with lavender dot-grid, glassmorphism cards (`blur(8px)`)
-- **Borders:** Ghost borders (`rgba(196, 181, 227, 0.25)`) — no solid 1px lines
-- **Shadows:** Lavender ambient glows only — no grey box-shadows
-- **Corners:** Sharp (`sm`/`md` radius) — lab-grade precision aesthetic
-- **Scrollbar:** 6px lavender, no rounding
-
-Dark mode fully supported via `data-theme="dark"` and `prefers-color-scheme`.
-
----
-
-## Screens
-
-| Screen | Status | Notes |
-|--------|--------|-------|
-| Practice | ✅ Live | Main pronunciation recording + analysis |
-| Progress | ✅ Live | Session history, accuracy charts |
-| Settings | ✅ Live | Language, level, voice, dark mode |
-| Home / Dashboard | 🎨 Designed | Streak, stats, recent sessions — pending impl |
-| Onboarding | 🎨 Designed | 3-step language + level setup — pending impl |
-| Session Results | 🎨 Designed | Post-session score + waveform — pending impl |
-
-**Stitch designs:** `projects/3137471133853841416`
-
----
-
-## Local Setup
-
-```bash
-cd frontend
+cd ../frontend
 npm install
-npm run dev
+cd ..
+
+bash scripts/dev-start.sh         # backend :8000, frontend :5173
 ```
 
-Requires `.env` in `frontend/`:
-```
-VITE_ELEVENLABS_API_KEY=your_key_here
-VITE_API_URL=http://localhost:8000
-```
+Open http://localhost:5173. Without `VITE_API_ORIGIN`, the Vite dev server proxies `/api` and `/audio` to the local backend. API docs at http://localhost:8000/docs.
 
----
+## Structure
 
-## Project Structure
+| Folder | What's inside |
+| --- | --- |
+| `frontend/` | React 19 + TypeScript + Vite SPA (Tailwind, react-router, TanStack Query, Recharts, Framer Motion) |
+| `backend/` | FastAPI service: transcription, scoring, TTS, SQLite persistence |
+| `scripts/` | `dev-start.sh`, Cloud Run deploy, smoke and load tests |
+| `docs/` | [ARCHITECTURE](docs/ARCHITECTURE.md), [DEPLOY](docs/DEPLOY.md), [HANDOFF](docs/HANDOFF.md), [TESTING_GUIDE](docs/TESTING_GUIDE.md) |
 
-```
-Echo/
-├── frontend/
-│   ├── src/
-│   │   ├── components/       # MicRecorder, WaveComparison, ScoreDisplay, Sidebar
-│   │   ├── pages/            # PracticePage, ProgressPage, SettingsPage
-│   │   ├── hooks/            # useMicrophone
-│   │   ├── contexts/         # ThemeContext
-│   │   └── index.css         # Design token definitions
-│   └── index.html            # Orbitron + Inter font imports
-├── backend/                  # FastAPI (WIP)
-├── ROADMAP.md                # Full feature roadmap + Stitch screen IDs
-└── netlify.toml              # Deployment config
+## Tests
+
+```sh
+cd backend && python -m pytest tests/ -q          # scoring + TTS cache unit tests
+cd frontend && npx tsc --noEmit && npm run build  # typecheck + build
 ```
 
----
-
-## Roadmap Highlights
-
-- **v0.2** — Home, Onboarding, Results pages implementation
-- **v0.3** — Recording button redesign, waveform Clinical Sublime update
-- **v0.4** — Page transitions, recording experience animations
-- **v1.0** — Auth, user accounts, backend persistence
-- **Future** — Mandarin (ZH) with tone indicators, pinyin overlay, pitch contour comparison
-
-See [ROADMAP.md](./ROADMAP.md) for full details.
-
----
+CI runs the typecheck, unit tests, and a gitleaks secret scan on every push and PR.
 
 ## Deployment
 
-Hosted on Netlify. Auto-deploys from `main` branch.
+- Frontend auto-deploys to Netlify from `main` (`netlify.toml`).
+- Backend deploys to Cloud Run from `.github/workflows/echo-cd.yml`, authenticated with Workload Identity Federation — no long-lived keys. Setup in [docs/DEPLOY.md](docs/DEPLOY.md).
 
-```bash
-# Manual deploy
-npm run build
-# Netlify picks up dist/ automatically
-```
+## Design
 
-Config: [`netlify.toml`](./netlify.toml) — build from `frontend/`, publish `frontend/dist/`.
+Clinical Sublime design system (Positronica family): lavender primary, Orbitron + Inter, glassmorphism, dark mode. Tokens in `frontend/src/index.css`.
+
+## Credits
+
+- [faster-whisper](https://github.com/SYSTRAN/faster-whisper) — transcription
+- [Kokoro](https://github.com/hexgrad/kokoro) — local TTS
+- [ElevenLabs](https://elevenlabs.io) — cloud TTS
+
+## License
+
+[MIT](LICENSE)
