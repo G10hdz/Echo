@@ -1,0 +1,77 @@
+# Model for docs/assets/echo-arch.{light,dark}[.es].svg
+# Zoom: container. Topology: hub-spoke. Regenerate the SVG if a node or edge
+# here stops matching the source it traces to.
+zoom: container
+topology: hub-spoke
+boundary:
+  id: cloudrun
+  label: Cloud Run · echo-api
+nodes:
+  - id: spa
+    label: React SPA
+    sub: Netlify · Vite
+    kind: service
+    src: frontend/src/services/api.ts:15
+  - id: api
+    label: FastAPI
+    sub: backend/main.py
+    kind: service
+    focal: true
+    group: cloudrun
+    src: backend/main.py:115
+  - id: whisper
+    label: faster-whisper
+    sub: STT · in-process
+    kind: compute
+    group: cloudrun
+    src: backend/whisper_service.py:8
+  - id: kokoro
+    label: Kokoro TTS
+    sub: local fallback
+    kind: compute
+    group: cloudrun
+    src: backend/kokoro_service.py:38
+  - id: sqlite
+    label: SQLite
+    sub: sessions · ephemeral
+    kind: store
+    group: cloudrun
+    src: backend/database.py:4
+  - id: audio
+    label: audio_cache
+    sub: WAV · /audio
+    kind: store
+    group: cloudrun
+    src: backend/main.py:62
+  - id: elevenlabs
+    label: ElevenLabs
+    sub: TTS API · external
+    kind: external
+    src: backend/elevenlabs_service.py:33
+edges:
+  - from: spa
+    to: api
+    label: HTTPS /api/*
+    src: frontend/src/services/api.ts:47
+  - from: api
+    to: whisper
+    label: transcribe
+    src: backend/whisper_service.py:16
+  - from: api
+    to: kokoro
+    label: fallback
+    dashed: true
+    src: backend/kokoro_service.py:41
+  - from: api
+    to: sqlite
+    label: sessions
+    src: backend/database.py:26
+  - from: api
+    to: audio
+    label: tts_url
+    src: backend/main.py:378
+  - from: api
+    to: elevenlabs
+    label: HTTPS · preferred
+    src: backend/elevenlabs_service.py:33
+omitted: CORS middleware, Secret Manager mount, Netlify CDN internals
