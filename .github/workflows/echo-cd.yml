@@ -150,13 +150,17 @@ jobs:
     needs: backend-build
     continue-on-error: true
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
       - name: Authenticate GCP
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SA }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -178,7 +182,7 @@ jobs:
             --region "${{ secrets.GCP_REGION }}" \
             --platform managed \
             --allow-unauthenticated \
-            --memory "${{ secrets.CLOUD_RUN_MEMORY || '4Gi' }}" \
-            --cpu "${{ secrets.CLOUD_RUN_CPU || '2' }}" \
-            --set-env-vars "ECHO_CORS_ORIGINS=${{ secrets.ECHO_CORS_ORIGINS }}" \
+            --memory "${{ secrets.CLOUD_RUN_MEMORY || '8Gi' }}" \
+            --cpu "${{ secrets.CLOUD_RUN_CPU || '4' }}" \
+            --set-env-vars "ECHO_CORS_ORIGINS=${{ secrets.ECHO_CORS_ORIGINS }},WHISPER_MODEL_SIZE=${{ secrets.WHISPER_MODEL_SIZE || 'base' }}" \
             --set-secrets "ELEVENLABS_API_KEY=echo-elevenlabs-key:latest"
