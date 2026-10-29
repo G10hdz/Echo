@@ -126,6 +126,54 @@ curl "$BACKEND_URL/api/sentences?level=A1&language=en&limit=1"
 # Expected: {"sentences":[{"id":...,"text":"..."}]}
 ```
 
+### 1.6 GitHub Actions deploy auth (Workload Identity Federation)
+
+The `deploy-backend` job in `.github/workflows/echo-cd.yml` authenticates to GCP
+without a stored service-account key, via Workload Identity Federation (WIF).
+GitHub mints a short-lived OIDC token per run; GCP exchanges it for access to
+the deploy service account. There is no `GCP_SA_KEY` secret to leak or rotate.
+
+Resources (project `positronica-labs`):
+
+- Service account `gh-deploy-echo@positronica-labs.iam.gserviceaccount.com`
+  - `roles/artifactregistry.writer` on repo `echo` (us-central1)
+  - `roles/run.developer` on service `echo-api`
+  - `roles/iam.serviceAccountUser` on the Cloud Run runtime SA
+    (`<project-number>-compute@developer.gserviceaccount.com`)
+- Workload Identity Pool `github-pool`, OIDC provider `github-oidc`
+  (issuer `https://token.actions.githubusercontent.com`, condition
+  `repository_owner == 'G10hdz'`)
+- `roles/iam.workloadIdentityUser` on the deploy SA granted only to
+  `attribute.repository = G10hdz/Echo`
+
+GitHub secrets it reads: `GCP_WIF_PROVIDER` (full provider resource name),
+`GCP_DEPLOY_SA`, `GCP_PROJECT_ID`, `GCP_REGION`, `AR_REPO`,
+`CLOUD_RUN_SERVICE`, `ECHO_CORS_ORIGINS`. Optional overrides:
+`CLOUD_RUN_MEMORY`, `CLOUD_RUN_CPU`, `WHISPER_MODEL_SIZE`.
+
+To recreate from scratch:
+
+```bash
+PROJECT_NUMBER=$(gcloud projects describe positronica-labs --format='value(projectNumber)')
+
+gcloud iam service-accounts create gh-deploy-echo \
+  --display-name="GitHub Actions deploy: Echo"
+
+gcloud iam workload-identity-pools create github-pool \
+  --location=global --display-name="GitHub Actions"
+
+gcloud iam workload-identity-pools providers create-oidc github-oidc \
+  --location=global --workload-identity-pool=github-pool \
+  --issuer-uri="https://token.actions.githubusercontent.com" \
+  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner" \
+  --attribute-condition="assertion.repository_owner == 'G10hdz'"
+
+gcloud iam service-accounts add-iam-policy-binding \
+  gh-deploy-echo@positronica-labs.iam.gserviceaccount.com \
+  --member="principalSet://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github-pool/attribute.repository/G10hdz/Echo" \
+  --role="roles/iam.workloadIdentityUser"
+```
+
 ---
 
 ## Part 2 — Frontend → Netlify
