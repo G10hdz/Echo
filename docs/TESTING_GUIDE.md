@@ -3,7 +3,7 @@
 **App:** Echo — AI-powered pronunciation practice app
 **Live URL:** https://echo-pronunciation.netlify.app/
 **Local URL:** http://localhost:5173 (frontend) + http://localhost:8000 (backend)
-**Repo:** `C:\Users\ASUSTUF\Desktop\Echo`
+**Repo:** https://github.com/G10hdz/Echo
 
 This guide walks you through every feature of Echo. Follow each section in order,
 check off every box, and report bugs using the template at the end.
@@ -79,7 +79,7 @@ VITE_API_ORIGIN=http://localhost:8000
 ```
 
 - If testing against the deployed backend instead of local, use:
-  `VITE_API_ORIGIN=https://echo-backend-527601165113.us-central1.run.app`
+  `VITE_API_ORIGIN=https://echo-api-527601165113.us-central1.run.app`
 
 **Backend** — create `backend/.env` (copy from `backend/.env.example`):
 
